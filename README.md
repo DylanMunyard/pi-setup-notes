@@ -50,4 +50,6 @@ Edit `/etc/dhcpcd.conf`:
 ```
 interface eth0
 static ip_address=192.168.86.220/24
+static routers=192.168.86.1
+static domain_name_servers=192.168.86.1
 ```

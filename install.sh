@@ -30,11 +30,11 @@ if [ -d "$ROOT_FOLDER" ]; then
   rm -rf "$ROOT_FOLDER"
 fi
 
-echo "Mounting boot partition@$BOOT_FOLDER"
-mkdir "$BOOT_FOLDER" && sudo mount /dev/sda1 "$BOOT_FOLDER"
+echo "Mounting boot partition ${1}1@$BOOT_FOLDER"
+mkdir "$BOOT_FOLDER" && sudo mount "${1}1" "$BOOT_FOLDER"
 
-echo "Mounting root partition@$ROOT_FOLDER"
-mkdir "$ROOT_FOLDER" && sudo mount /dev/sda2 "$ROOT_FOLDER"
+echo "Mounting root partition ${1}2@$ROOT_FOLDER"
+mkdir "$ROOT_FOLDER" && sudo mount "${1}2" "$ROOT_FOLDER"
 
 echo "Copy raspberry init scripts"
 sudo cp raspberry_run_init.service "$ROOT_FOLDER/etc/systemd"

@@ -1,7 +1,7 @@
 # pi-setup-notes
 > https://www.raspberrypi.org/documentation/installation/installing-images/linux.md
 - Download Raspberry Pi OS Lite https://www.raspberrypi.org/software/operating-systems/
-- Run `./install.sh /dev/sda raspios.img`
+- Run `./install.sh /dev/sda raspios.img server_token`
 
 ```
 # to find the SD card partition

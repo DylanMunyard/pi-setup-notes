@@ -1,7 +1,7 @@
 # pi-setup-notes
 > https://www.raspberrypi.org/documentation/installation/installing-images/linux.md
 - Download Raspberry Pi OS Lite https://www.raspberrypi.org/software/operating-systems/
-- Insert the SD cart, then run [install.sh /dev/sdcard raspios.img server_token node_name](install.sh).
+- Insert the SD card, then run [install.sh /dev/sdcard raspios.img server_token node_name](install.sh).
 
 | Option |  Value  |
 |:-----:|:--------|
@@ -24,8 +24,6 @@ sudo dd bs=4M if=2020-12-02-raspios-buster-armhf-lite.img of=/dev/sda conv=fsync
 ```
 
 # What install.sh does
-
-
 
 ## Enable cgroups
 After it's done, add `cgroup_memory=1 cgroup_enable=memory` to /boot/cmdline.txt

@@ -1,10 +1,11 @@
 #!/bin/bash
-# usage: install.sh /dev/sdx /path/to/raspberrypi.img server_token
+# usage: install.sh /dev/sdx /path/to/raspberrypi.img server_token node_name
 # /dev/sdx is the SD card disk
 # /path/to/raspberrypi.img is the Raspberry Pi OS image
 # server_token taken from /var/lib/rancher/k3s/server/node-token on kube-master
+# node_name is the node name
 
-if [ "$#" -ne 3 ]
+if [ "$#" -ne 4 ]
 then
   printf "Incorrect usage\n"
   printf "./install.sh /dev/sd_card_partition /path/to/raspberrypi.img k3s_token\n"
@@ -36,10 +37,6 @@ mkdir "$BOOT_FOLDER" && sudo mount "${1}1" "$BOOT_FOLDER"
 echo "Mounting root partition ${1}2@$ROOT_FOLDER"
 mkdir "$ROOT_FOLDER" && sudo mount "${1}2" "$ROOT_FOLDER"
 
-echo "Copy raspberry init scripts"
-sudo cp raspberry_run_init.service "$ROOT_FOLDER/etc/systemd"
-sudo cp raspberry_init.sh "$ROOT_FOLDER/usr/local/bin"
-
 # enable kernel parameters
 echo "Enable kernel parameters"
 CMD_LINE=$(sudo cat "$BOOT_FOLDER/cmdline.txt")
@@ -59,10 +56,18 @@ then
   sudo mkdir "$ROOT_FOLDER/home/pi/.ssh"  
 fi
 echo "Trust ssh key"
-sudo cp ~/pi/pi-key.pub "$ROOT_FOLDER/home/pi/.ssh/authorized_keys" 
+sudo cp ~/pi/pi-key.pub "$ROOT_FOLDER/home/pi/.ssh/authorized_keys"
 
-# set up a hosts entry for kube-master IP
-printf "%s\t%s" "192.168.86.220" "kube-master" | sudo tee -a "$ROOT_FOLDER/etc/hosts"
+# Configure Pi init service
+echo "Copy raspberry init scripts"
+sudo cp init_pi.service "$ROOT_FOLDER/etc/systemd/system"
+sudo ln -s ../init_pi.service "$ROOT_FOLDER/etc/systemd/system/multi-user.target.wants/init_pi.service"
+sudo cp raspberry_init.sh "$ROOT_FOLDER/usr/local/bin"
+sudo chmod +x "$ROOT_FOLDER/usr/local/bin/raspberry_init.sh"
 
-# set up k3s_token environment variable
-printf "\n%s=\"%s\"\n" "K3S_TOKEN" "$3" | sudo tee -a "$ROOT_FOLDER/home/pi/.profile"
+# set up the master server IP address variable
+printf "%s\t%s" "192.168.86.220" "kube-master.local" | sudo tee -a "$ROOT_FOLDER/etc/hosts"
+
+# set up k3s server options
+printf "%s" "$3" | sudo tee -a "$ROOT_FOLDER/home/pi/.k3s_token"
+printf "%s" "$4" | sudo tee -a "$ROOT_FOLDER/home/pi/.k3s_node_name"

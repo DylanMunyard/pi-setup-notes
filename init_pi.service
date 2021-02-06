@@ -9,4 +9,4 @@ ExecStart=/usr/local/bin/raspberry_init.sh
 TimeoutStartSec=0
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

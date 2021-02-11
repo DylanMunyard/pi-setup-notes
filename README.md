@@ -57,6 +57,41 @@ Copy the key to the Pi, and add it to the trusted keys
 Connect to the Pi by specifying the key:
 - `ssh -i ~/pi/pi-key pi@IP`
 
+## Mounting NFS
+To export an NFS share create a folder under /export
+```bash
+sudo mkdir /export
+sudo chown dylan:dylan /export
+chmod a+rwxt /export
+mkdir /export/nfs
+```
+Auto mount the NFS partition
+```bash
+UUID=57E5FAA814CD9851 /media/dylan/nfs	auto defaults 0 0
+/media/dylan/nfs /export/nfs auto bind,rw 0 0
+```
+The second line creates a bind mount to /export/nfs, which is exported as the NFS share.
+
+
+Export the NFS share
+https://help.ubuntu.com/community/NFSv4Howto + http://www.citi.umich.edu/projects/nfsv4/linux/using-nfsv4.html
+
+```bash
+sudo nano /etc/exports
+/export/nfs 192.168.86.0/24(rw,fsid=0,insecure,no_subtree_check)
+sudo exportfs -r
+```
+https://rancher.com/docs/rancher/v2.x/en/cluster-admin/volumes-and-storage/examples/nfs/
+
+Testing the mount on Pi: 
+```bash
+mkdir ~/nfs
+sudo mount -t nfs -vvvv 192.168.86.29:/export/nfs ~/nfs
+
+# and to unmount
+sudo umount -f -l nfs
+```
+
 ## Create init script service
 > https://www.2daygeek.com/enable-disable-services-on-boot-linux-chkconfig-systemctl-command/
 

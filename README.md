@@ -57,33 +57,60 @@ Copy the key to the Pi, and add it to the trusted keys
 Connect to the Pi by specifying the key:
 - `ssh -i ~/pi/pi-key pi@IP`
 
-## Mounting NFS
+## NFS Provision
+### Export the NFS Share 
 To export an NFS share create a folder under /export
 ```bash
+# create the folder we'll export as the NFS share
 sudo mkdir /export
-sudo chown dylan:dylan /export
 chmod a+rwxt /export
 mkdir /export/nfs
-```
-Auto mount the NFS partition
-```bash
-UUID=57E5FAA814CD9851 /media/dylan/nfs	auto defaults 0 0
-/media/dylan/nfs /export/nfs auto bind,rw 0 0
-```
-The second line creates a bind mount to /export/nfs, which is exported as the NFS share.
-
-
-Export the NFS share
-https://help.ubuntu.com/community/NFSv4Howto + http://www.citi.umich.edu/projects/nfsv4/linux/using-nfsv4.html
-
-```bash
+chown nobody:nogroup /export/nfs
+# automatically export the NFS share at boot
 sudo nano /etc/exports
 /export/nfs 192.168.86.0/24(rw,fsid=0,insecure,no_subtree_check)
+# reload exports without reboot
 sudo exportfs -r
 ```
+
+Then create a 'bind' mount at `/export/nfs` for the partition. \
+The point of creating `/export/nfs` is that you have a separate folder to 
+configure permissions and access from NFS mounts, separate to the physical
+partition.
+
+```bash
+# to get the partition's UUID:
+blkid
+#> /dev/nvme0n1p6: UUID="efabbd25-e9b9-4a67-9627-aec23ae60ad7" TYPE="ext4" PARTLABEL="nfs" PARTUUID="505d8706-4cd5-4570-ba9f-7b72d71e41f8"
+sudo nano /etc/fstab
+# auto-mount the partition at boot
+UUID=efabbd25-e9b9-4a67-9627-aec23ae60ad7 /media/dylan/nfs	auto defaults 0 0
+# create a bind mount to our NFS export folder
+/media/dylan/nfs /export/nfs auto bind,rw 0 0
+```
+| Sources: https://help.ubuntu.com/community/NFSv4Howto 
+http://www.citi.umich.edu/projects/nfsv4/linux/using-nfsv4.html
 https://rancher.com/docs/rancher/v2.x/en/cluster-admin/volumes-and-storage/examples/nfs/
 
-Testing the mount on Pi: 
+## Install nfs-common on the PI
+```bash
+sudo apt install nfs-common -y
+```
+
+## Install the NFS share provisioner to the cluster
+https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
+```bash
+helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
+helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
+    --set nfs.server=192.168.86.29 \
+    --set nfs.path=/export/nfs
+    
+# to uninstall
+helm uninstall nfs-subdir-external-provisioner
+```
+
+### Troubleshooting mount issues from the Pi
+ 
 ```bash
 mkdir ~/nfs
 sudo mount -t nfs -vvvv 192.168.86.29:/export/nfs ~/nfs
@@ -113,7 +140,7 @@ Create a service that will call a bash script to install k3s
 
 
 ## Set a static IP - master node only
-
+Raspbian OS:
 Edit `/etc/dhcpcd.conf`:
 ```
 interface eth0
@@ -122,7 +149,17 @@ static routers=192.168.86.1
 static domain_name_servers=192.168.86.1
 ```
 
+Ubuntu Server:
+https://kirelos.com/how-to-configure-static-ip-address-on-ubuntu-20-04/
+
 # Troubleshooting
+With Ubuntu Server, the nodes are coming online with a taint `node.cloudprovider.kubernetes.io/uninitialized`
+that prevents pods from scheduling. I am manually removing it for now, 
+but something about Ubuntu Server is causing it to be added, same didn't happen
+for Raspbian.
+
+The default password for Ubuntu is `ubuntu`
+
 If the mount persists even after removing SD, force unmount: \
 `cat /proc/mounts` to list them
 `sudo umount -f /dev/sda1` will force unmount it.
@@ -131,3 +168,12 @@ Find the Pi IP using nmap:
 > https://www.howtogeek.com/423709/how-to-see-all-devices-on-your-network-with-nmap-on-linux/
 
 `sudo nmap -sn 192.168.86.0/24`
+
+## Angry IP Scanner
+Download it https://angryip.org/download/#linux \
+`sudo dpkg -i ipscan.deb`
+
+## Shutdown Pi
+Shut down the Pi
+`sudo shutdown now` \
+Restart `sudo shutdown -r`

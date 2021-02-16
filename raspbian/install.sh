@@ -31,10 +31,10 @@ if [ -d "$ROOT_FOLDER" ]; then
   rm -rf "$ROOT_FOLDER"
 fi
 
-echo "Mounting boot partition ${1}1@$BOOT_FOLDER"
+echo "Mounting boot partition ${1}1$BOOT_FOLDER"
 mkdir "$BOOT_FOLDER" && sudo mount "${1}1" "$BOOT_FOLDER"
 
-echo "Mounting root partition ${1}2@$ROOT_FOLDER"
+echo "Mounting root partition ${1}2$ROOT_FOLDER"
 mkdir "$ROOT_FOLDER" && sudo mount "${1}2" "$ROOT_FOLDER"
 
 # enable kernel parameters

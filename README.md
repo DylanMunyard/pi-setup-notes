@@ -57,7 +57,39 @@ Copy the key to the Pi, and add it to the trusted keys
 Connect to the Pi by specifying the key:
 - `ssh -i ~/pi/pi-key pi@IP`
 
+## Attached Storage
+Using a [4TB Western Digital Passport](https://products.wdc.com/library/AAG/ENG/4078-705155.pdf). 
+Find it's UUID with `blkid` \
+Add it to `/etc/fstab` so it auto-mounts after restart. 
+```bash
+sudo nano /etc/fstab
+UUID=5f88bef3-9f95-4c12-b621-c51859200da7 /media/k8s_store	auto rw,sync,user 0 0
+```
+
+Create the mount point folder `mkdir /media/k8s_store`. \
+Mount the disk `sudo mount -a` \
+Add a k8s label to the Pi node:
+```bash
+kubectl label nodes level3-2a7ff144 pi.attached.storage/exists=true
+````
+Start the k3s server with `--default-local-storage-path /media/k8s_store`.
+
+I found this didn't work if I changed it on a running server. So I patched the 
+`local-path` ConfigMap, which provides config to the local path storage class provisioner pod.
+
+Run [this script](k3s/cluster/apply-local-path-config.sh) to patch the ConfigMap.
+
+We'll use this in the pod `nodeSelector` later on.
+
 ## NFS Provision
+## Important notes about using NFS
+I thought this was going to be how to persist state for containers. 
+Buy a SAN device and let Kube mount PVs there. But having tested this first
+by exporting a mount from my laptop, then testing with MySQL container there are issues:
+1. Random IO exceptions
+2. Locking issues, can't obtain one it looks like
+
+Plex media service Docker page says to avoid using NFS due to locking issues.
 ### Export the NFS Share 
 To export an NFS share create a folder under /export
 ```bash
@@ -65,10 +97,15 @@ To export an NFS share create a folder under /export
 sudo mkdir /export
 chmod a+rwxt /export
 mkdir /export/nfs
-chown nobody:nogroup /export/nfs
+
+# create a Kubernetes group that all containers will run as
+sudo groupadd -g 8888 k8s
+# add a Kubernetes user to the group, containers will run as this user
+sudo useradd -g k8s k8s -u 8888
+sudo chown 8888:8888 -R /export/nfs
 # automatically export the NFS share at boot
 sudo nano /etc/exports
-/export/nfs 192.168.86.0/24(rw,fsid=0,insecure,no_subtree_check)
+/export/nfs 192.168.86.0/24(rw,no_subtree_check,all_squash,anonuid=1001,anongid=8888)
 # reload exports without reboot
 sudo exportfs -r
 ```

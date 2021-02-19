@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: my-sql
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: my-sql
+  namespace: my-sql
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: my-sql-data
+  namespace: my-sql
+spec:
+  storageClassName: local-path
+#  storageClassName: nfs-client # for NFS mounts
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-sql
+  namespace: my-sql
+spec:
+  selector:
+    matchLabels:
+      app: my-sql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: my-sql
+    spec:
+      serviceAccountName: my-sql
+      containers:
+        - name: my-sql
+          image: biarms/mysql:5
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: my-sql-data
+              mountPath: "/var/lib/mysql"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: raspberry_pi
+      volumes:
+        - name: my-sql-data
+          persistentVolumeClaim:
+            claimName: my-sql-data
+      nodeSelector:
+        pi.attached.storage/exists: "true"
+        

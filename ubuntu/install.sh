@@ -87,3 +87,11 @@ if [ "$4" == "master" ]; then
   # mark as master
   printf "%s" "$4" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_master"
 fi
+
+# create a path on the Pi where local storage will be written to
+if [ ! -d "$ROOT_FOLDER/media" ]; then
+  echo "Creating local-path storage location $ROOT_FOLDER/media/k8s_store"
+  sudo mkdir "$ROOT_FOLDER/media"
+fi
+
+sudo mkdir "$ROOT_FOLDER/media/k8s_store"

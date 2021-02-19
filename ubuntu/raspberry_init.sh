@@ -16,7 +16,7 @@ then
       sleep 2
   done
   if [ -f "/home/ubuntu/.k3s_master" ]; then
-    curl -sfL https://get.k3s.io | sh -s - --with-node-id "$(date +"%s")" --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/ubuntu/k3s_install.txt
+    curl -sfL https://get.k3s.io | sh -s - --with-node-id "$(date +"%s")" --default-local-storage-path /media/k8s_store --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/ubuntu/k3s_install.txt
   else
     curl -sfL https://get.k3s.io | K3S_URL=https://192.168.86.220:6443 K3S_TOKEN=$K3S_TOKEN K3S_NODE_NAME="$KUBE_NODE_NAME" sh -s - --with-node-id "$(date +"%s")" --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/ubuntu/k3s_install.txt
   fi

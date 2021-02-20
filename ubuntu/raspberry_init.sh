@@ -11,6 +11,9 @@ then
   # install nfs-common, required to mount nfs shares
   sudo apt install nfs-common -y
   
+  # install nfs-kernel-server, required to host nfs shares
+  sudo apt install nfs-kernel-server -y
+  
   # Wait for ntp to sync the time, otherwise curl: (60) SSL certificate problem: certificate is not yet valid
   while [[ $(timedatectl status | grep 'System clock synchronized' | grep -Eo '(yes|no)') = no ]]; do
       sleep 2

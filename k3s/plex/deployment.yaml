@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: plex-server
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: plex-server
+  namespace: plex-server
+---VERSION
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: plx-library
+  namespace: plex-server
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: plx-tvshows
+  namespace: plex-server
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: plx-movies
+  namespace: plex-server
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex-server
+  namespace: plex-server
+spec:
+  selector:
+    matchLabels:
+      app: plex-server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: plex-server
+    spec:
+      serviceAccountName: plex-server
+      containers:
+        - name: plex-server
+          image: ghcr.io/linuxserver/plex
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: plx-library
+              mountPath: "/config"
+            - name: plx-tvshows
+              mountPath: "/data/tvshows"
+            - name: plx-movies
+              mountPath: "/data/movies"
+          env:
+            - name: VERSION
+              value: "docker"
+      volumes:
+        - name: plx-library
+          persistentVolumeClaim:
+            claimName: plx-library
+        - name: plx-tvshows
+          persistentVolumeClaim:
+            claimName: plx-tvshows
+        - name: plx-movies
+          persistentVolumeClaim:
+            claimName: plx-movies
+      nodeSelector:
+        pi.attached.storage/exists: "true"
+        

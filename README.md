@@ -74,12 +74,15 @@ kubectl label nodes level3-2a7ff144 pi.attached.storage/exists=true
 ````
 Start the k3s server with `--default-local-storage-path /media/k8s_store`.
 
-I found this didn't work if I changed it on a running server. So I patched the 
-`local-path` ConfigMap, which provides config to the local path storage class provisioner pod.
+I found this didn't work if I changed it on a running server.  So SSH onto the master and patch the local-storage manifest. \
+k3s is built with support to automatically apply changes to the manifests folder:
 
-Run [this script](k3s/cluster/apply-local-path-config.sh) to patch the ConfigMap.
+```bash
+sed -i 's/\/var\/lib\/rancher\/k3s\/storage/\/media\/k8s_store/' /var/lib/rancher/k3s/server/manifests/local-storage.yaml > /var/lib/rancher/k3s/server/manifests/local-storage.yaml
+```
 
-We'll use this in the pod `nodeSelector` later on.
+__Note__, patching the manifest is taken care of for new master nodes in
+the [init script](ubuntu/raspberry_init.sh). 
 
 ## NFS
 ### Some observations using   NFS as backing for PVs

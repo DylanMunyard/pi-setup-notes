@@ -23,6 +23,9 @@ umount /dev/sda1
 sudo dd bs=4M if=2020-12-02-raspios-buster-armhf-lite.img of=/dev/sda conv=fsync 
 ```
 
+# Accessing services via a pretty URL
+See [Proxy instructions](PROXY.md). 
+
 # What install.sh does
 
 ## Enable cgroups

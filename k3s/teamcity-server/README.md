@@ -27,6 +27,11 @@ docker buildx build \
 To push the image to Dockerhub:
 `docker push dylanmunyard/teamcity-server:arm`
 
+## Configure server
+- Choose MySQL as the database provider. Download the JDBC driver as instructed.
+- Enter `my-sql.my-sql.svc.cluster.local:18888` as the connection string
+- Enter `teamcity-server`. Needs to be a blank database created beforehand.
+
 ## Observations
 I think Java uses JIT, because for the first few minutes TC is using up
 all four cores at 100%. 

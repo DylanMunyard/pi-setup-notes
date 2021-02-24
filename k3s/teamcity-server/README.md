@@ -20,12 +20,44 @@ Then use `buildx` to build it for Arm \
 docker buildx build \
     -f "generated/linux/Server/Ubuntu/20.04-openjdk/Dockerfile" \
     --platform linux/arm64 \
-    -t dylanmunyard/teamcity-server:arm "context" \
+    -t dylanmunyard/teamcity-server:arm.01 "context" \
     --load
 ```
 
-To push the image to Dockerhub:
-`docker push dylanmunyard/teamcity-server:arm`
+Push the image:
+`docker push dylanmunyard/teamcity-server:arm.01`
+
+## Build the agent
+```bash
+# build the base agent image first
+docker buildx build \
+    -f "generated/linux/MinimalAgent/Ubuntu/20.04-openjdk/Dockerfile" \
+    --platform linux/arm64 \
+    -t teamcity-minimal-agent-openjdk:local-linux "context" \
+    --load
+    
+# tag and push it - this is only because docker buildx can't find local images
+docker tag teamcity-minimal-agent-openjdk:local-linux dylanmunyard/teamcity-agent:arm.01 
+docker push dylanmunyard/teamcity-agent:arm.01
+
+# then build the full agent image
+# to make it work for arm we override the following build args:
+# teamcityMinimalAgentImage=dylanmunyard/teamcity-agent-minimal:arm.01
+# dotnetLinuxComponent=https://dotnetcli.blob.core.windows.net/dotnet/Sdk/3.1.405/dotnet-sdk-3.1.405-linux-arm64.tar.gz
+# dotnetLinuxComponentSHA512=1c7ca36af74524fa5ec49374983338ab3f1584a03aec11080943cf3bbc7e1fb36abf313549231e5be1c58c2252f27d4e001cac1464ee20702daf831ec61c92cf
+# the dotnetLinuxComponent arguments are taken from the downloads page https://dotnetcli.blob.core.windows.net/dotnet/Sdk/3.1.405/dotnet-sdk-3.1.405-linux-arm64.tar.gz
+docker buildx build \
+    -f "generated/linux/Agent/Ubuntu/20.04/Dockerfile" \
+    --platform linux/arm64 \
+    -t dylanmunyard/teamcity-agent:arm.01 \
+    --build-arg teamcityMinimalAgentImage=dylanmunyard/teamcity-agent-minimal:arm.01 \
+    --build-arg dotnetLinuxComponent=https://dotnetcli.blob.core.windows.net/dotnet/Sdk/3.1.405/dotnet-sdk-3.1.405-linux-arm64.tar.gz \
+    --build-arg dotnetLinuxComponentSHA512=1c7ca36af74524fa5ec49374983338ab3f1584a03aec11080943cf3bbc7e1fb36abf313549231e5be1c58c2252f27d4e001cac1464ee20702daf831ec61c92cf \
+    --load "context"
+```
+
+Push the image:
+`docker push dylanmunyard/teamcity-agent:arm.01`
 
 ## Configure server
 - Choose MySQL as the database provider. Download the JDBC driver as instructed.

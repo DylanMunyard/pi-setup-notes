@@ -64,6 +64,28 @@ Push the image:
 - Enter `my-sql.my-sql.svc.cluster.local:18888` as the connection string
 - Enter `teamcity-server`. Needs to be a blank database created beforehand.
 
+## Configure the agent pool 
+Select the Kubernetes agent profile type. In the agent popup, choose 'Custom Pod Specification' and
+enter: 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jetbrains-teamcity-agent
+  namespace: teamcity-agent
+spec:
+  containers:
+  - name: jetbrains-teamcity-agent
+    image: dylanmunyard/teamcity-agent:arm.2020.2.2
+    env:
+      - name: "DOCKER_IN_DOCKER"
+        value: "start"
+    securityContext:
+      privileged: true
+  nodeSelector:
+    kubernetes.io/os: linux
+```
+
 ## Observations
 I think Java uses JIT, because for the first few minutes TC is using up
 all four cores at 100%. 

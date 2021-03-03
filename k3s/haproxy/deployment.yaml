@@ -23,7 +23,7 @@ spec:
       serviceAccountName: ha-proxy
       containers:
         - name: ha-proxy
-          image: dylanmunyard/ha-proxy-pi:0.4
+          image: dylanmunyard/ha-proxy-pi:0.8
           imagePullPolicy: Always
           volumeMounts:
             - name: ha-proxy-certs

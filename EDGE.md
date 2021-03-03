@@ -9,6 +9,8 @@ __Relevant steps__
 - Step 5 - Update DNS settings in Google Domain to reference Google Cloud DNS.
 
 ## Configure a load balancer
+Followed: https://cloud.google.com/load-balancing/docs/negs/internet-neg-concepts
+
 Load balancer is the 'front end' for the Pi. Requests to elbanyo.net will 
 arrive at the load balancer. It will simply forward on the request to the Pi, by opening a
 secure connection to the Pi. 

@@ -2,14 +2,17 @@
 ```
 docker buildx build \
 --platform linux/arm64 \
--t dylanmunyard/ha-proxy-pi:0.3 . \
+-t dylanmunyard/ha-proxy-pi:0.7 . \
 --push
 ```
 
 Push it `docker push `
 
 To test if `haproxy.cfg` is valid before pushing, run the image interactively using the haproxy command: \
-`docker run --it --rm --name ha-proxy-local dylanmunyard/ha-proxy-pi:0.3 haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg`
+```
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+docker run --it --rm --name ha-proxy-local dylanmunyard/ha-proxy-pi:0.3 haproxy -c -f /usr/local/etc/haproxy/haproxy.cfg
+```
 
 ## Note about haproxy.cfg
 It has to terminate with a new line, or you get this in the log:

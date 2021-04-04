@@ -1,7 +1,7 @@
 # NFS
 > I tried this, but had heaps of locking issues on the NFS, which apparently it's known for.
 > 
-> Anyway But here are the notes for setting up NFS.
+> Anyway here are the notes for setting up NFS.
 
 For read and write intensive containers, like mysql, it's not
 recommended to use NFS. Instead it should use directly attached

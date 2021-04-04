@@ -12,8 +12,8 @@
 if [ "$#" -ne 4 ]
 then
   printf "Incorrect usage\n"
-  printf "./install.sh /dev/sd_card_partition /path/to/raspberrypi.img k3s_token\n"
-  echo "e.g. ./install /dev/sda ~/Downloads/raspios.img abcd123"
+  printf "./install.sh /dev/sd_card_partition /path/to/raspberrypi.img k3s_token node_name\n"
+  echo "e.g. ./install /dev/sda ~/Downloads/raspios.img ef1cff level4"
   exit 1  
 fi
 

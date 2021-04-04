@@ -1,15 +1,17 @@
 # pi-setup-notes
 > https://www.raspberrypi.org/documentation/installation/installing-images/linux.md
-- Download Raspberry Pi OS Lite https://www.raspberrypi.org/software/operating-systems/
-- Insert the SD card, then run [install.sh /dev/sdcard raspios.img server_token node_name](install.sh).
+- Download Ubuntu Server for ARM, https://ubuntu.com/download/server/arm
+- Insert the SD card, find it's partition name from `lsblk -p`, e.g. \dev\sda, dev\sdb etc
+- Install everything using [install.sh](ubuntu/install.sh).
 
 | Option |  Value  |
 |:-----:|:--------|
 | /dev/sdcard | The root partition name of the SD card. How-to find it is listed below. |
-| raspios.img  | Path to the Raspberry Pi OS image |
-| server_token | The k3s server token, obtained from `/var/lib/rancher/k3s/server/node-token` on the master node |
+| server_img.img  | The OS image to install |
+| server_token | The k3s server token, from the master: `/var/lib/rancher/k3s/server/node-token` |
 | node_name | The node name to give the Raspberry Pi in the cluster. I describe the level the Pi is installed on, e.g. `level4` |
 
+# Finding partition number
 ```
 # to find the SD card partition
 lsblk -p
@@ -17,7 +19,8 @@ lsblk -p
 └─/dev/sda1        8:1    1  29.7G  0 part
  
 # unmount the partition
-umount /dev/sda1
+umount /dev/sda1 
+```
 
 # burn the image to the SD Card
 sudo dd bs=4M if=2020-12-02-raspios-buster-armhf-lite.img of=/dev/sda conv=fsync 
@@ -184,21 +187,9 @@ helm uninstall nfs-subdir-external-provisioner
 > https://www.2daygeek.com/enable-disable-services-on-boot-linux-chkconfig-systemctl-command/
 
 Create a service that will call a bash script to install k3s
-- Copy [init_pi.service](./init_pi.service) following to `/rootfs/etc/systemd/system/init_pi.service`
-- To make it run automatically, create a symlink to it in `/etc/systemd/system/multi-user.target.wants/init_pi.service` 
-- It simply calls [raspberry_init.sh](raspberry_init.sh) to do the work.
-
-## k3s agent options
-`curl -sfL https://get.k3s.io | K3S_URL=https://192.168.86.220:6443 K3S_TOKEN=$K3S_TOKEN K3S_NODE_NAME="$KUBE_NODE_NAME" sh -s - --with-node-id "$(date +"%s")" --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/pi/k3s_install.txt`
-
-| Option |  Value  | Description |
-|:-----|--------:|:------|
-| K3S_TOKEN environment variable  | Taken from `/var/lib/rancher/k3s/server/node-token` on the master node. | Authentication token for agent->server. |
-| K3S_URL environment variable  |  https://192.168.86.220:6443 | Important to use the IP, and not an alias. |
-| K3S_NODE_NAME | The name of the node as it appears in `kubectl get nodes` | Specify the level in the cluster. |
-| --with-node-id option | ` "$(date +"%s")"` | Specifies a unique suffix for the node name. This is necessary to avoid conflicts with previous attempts to join the cluster under the same node name. It causes authentication issues if you try to re-use the name. |
-| --node-label | `pi-cluster-level="$KUBE_NODE_NAME"` | Add this is a selectable node label. Will come in handy later when deploying to specific Pis |  
-
+- Copy [init_pi.service](./ubuntu/init_pi.service) following to `/rootfs/etc/systemd/system/init_pi.service`
+- To make it run automatically, create a symlink to it in `/etc/systemd/system/multi-user.target.wants/init_pi.service`
+- It simply calls [raspberry_init.sh](ubuntu/raspberry_init.sh) to do the work.
 
 ## Set a static IP - master node only
 Raspbian OS:
@@ -212,6 +203,50 @@ static domain_name_servers=192.168.86.1
 
 Ubuntu Server:
 https://kirelos.com/how-to-configure-static-ip-address-on-ubuntu-20-04/
+
+## Attached Storage
+Using a [4TB Western Digital Passport](https://products.wdc.com/library/AAG/ENG/4078-705155.pdf). 
+Find it's UUID with `blkid` \
+Add it to `/etc/fstab` so it auto-mounts after restart. 
+```bash
+sudo nano /etc/fstab
+UUID=5f88bef3-9f95-4c12-b621-c51859200da7 /media/k8s_store	auto rw,sync,user 0 0
+```
+
+Create the mount point folder `mkdir /media/k8s_store`. \
+Mount the disk `sudo mount -a` \
+Add a k8s label to the Pi node:
+```bash
+kubectl label nodes level3-2a7ff144 pi.attached.storage/exists=true
+````
+Start the k3s server with `--default-local-storage-path /media/k8s_store`.
+
+I found this didn't work if I changed it on a running server.  So SSH onto the master and patch the local-storage manifest. \
+k3s is built with support to automatically apply changes to the manifests folder:
+
+```bash
+sed -i 's/\/var\/lib\/rancher\/k3s\/storage/\/media\/k8s_store/' /var/lib/rancher/k3s/server/manifests/local-storage.yaml > /var/lib/rancher/k3s/server/manifests/local-storage.yaml
+```
+
+__Note__, patching the manifest is taken care of for new master nodes in
+the [init script](ubuntu/raspberry_init.sh).
+
+## Network storage
+Right now the Pis use either attached physical storage or temporary pod storage. \
+But I went through a heap of trouble to get NFS working, only to discover performance
+issues and application errors. I documented what I got working here:
+- [NFS](NFS.md)
+
+## k3s agent options
+`curl -sfL https://get.k3s.io | K3S_URL=https://192.168.86.220:6443 K3S_TOKEN=$K3S_TOKEN K3S_NODE_NAME="$KUBE_NODE_NAME" sh -s - --with-node-id "$(date +"%s")" --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/pi/k3s_install.txt`
+
+| Option |  Value  | Description |
+|:-----|--------:|:------|
+| K3S_TOKEN environment variable  | Taken from `/var/lib/rancher/k3s/server/node-token` on the master node. | Authentication token for agent->server. |
+| K3S_URL environment variable  |  https://192.168.86.220:6443 | Important to use the IP, and not an alias. |
+| K3S_NODE_NAME | The name of the node as it appears in `kubectl get nodes` | Specify the level in the cluster. |
+| --with-node-id option | ` "$(date +"%s")"` | Specifies a unique suffix for the node name. This is necessary to avoid conflicts with previous attempts to join the cluster under the same node name. It causes authentication issues if you try to re-use the name. |
+| --node-label | `pi-cluster-level="$KUBE_NODE_NAME"` | Add this is a selectable node label. Will come in handy later when deploying to specific Pis |
 
 # Troubleshooting
 With Ubuntu Server, the nodes are coming online with a taint `node.cloudprovider.kubernetes.io/uninitialized`

@@ -1,4 +1,7 @@
 # pi-setup-notes
+See [Equipment](EQUIPMENT.md) for what the end result looks like. \
+See [Edge instructions](EDGE.md) for how to configure external access to it.
+
 > https://www.raspberrypi.org/documentation/installation/installing-images/linux.md
 - Download Ubuntu Server for ARM, https://ubuntu.com/download/server/arm
 - Insert the SD card, find it's partition name from `lsblk -p`, e.g. \dev\sda, dev\sdb etc
@@ -11,7 +14,7 @@
 | server_token | The k3s server token, from the master: `/var/lib/rancher/k3s/server/node-token` |
 | node_name | The node name to give the Raspberry Pi in the cluster. I describe the level the Pi is installed on, e.g. `level4` |
 
-# Finding partition number
+## Find the SD card partion name
 ```
 # to find the SD card partition
 lsblk -p
@@ -21,21 +24,6 @@ lsblk -p
 # unmount the partition
 umount /dev/sda1 
 ```
-
-# Automatic k3s version upgrades
-`system-upgrade-controller` has been installed from https://github.com/rancher/system-upgrade-controller.
-
-To upgrade the cluster, deploy a `Plan` https://github.com/rancher/system-upgrade-controller/blob/master/examples/k3s-upgrade.yaml and
-set the `version: v1.18.8+k3s1` from https://github.com/k3s-io/k3s/releases.
-
-The nodes must have the `k3s-upgrade=true` label:
-`kubectl label node node1 node2 node3 k3s-upgrade=true`
-
-# Accessing services via a pretty URL
-See [Edge instructions](EDGE.md). 
-
-# What it looks like assembled
-See [Equipment](EQUIPMENT.md)
 
 # What install.sh does
 
@@ -70,7 +58,7 @@ Connect to the Pi by specifying the key:
 - To make it run automatically, create a symlink to it in `/etc/systemd/system/multi-user.target.wants/init_pi.service`
 - It simply calls [raspberry_init.sh](ubuntu/raspberry_init.sh) to do the work.
 
-## Set a static IP - master node only
+### Set a static IP - master node only
 Raspbian OS:
 Edit `/etc/dhcpcd.conf`:
 ```
@@ -83,13 +71,32 @@ static domain_name_servers=192.168.86.1
 Ubuntu Server:
 https://kirelos.com/how-to-configure-static-ip-address-on-ubuntu-20-04/
 
-## Attached Storage
+# Enable automatic k3s upgrades
+`system-upgrade-controller` has been installed from https://github.com/rancher/system-upgrade-controller.
+
+To upgrade the cluster, deploy a `Plan` https://github.com/rancher/system-upgrade-controller/blob/master/examples/k3s-upgrade.yaml and
+set the `version: v1.18.8+k3s1` from https://github.com/k3s-io/k3s/releases.
+
+The nodes must have the `k3s-upgrade=true` label:
+`kubectl label node node1 node2 node3 k3s-upgrade=true`
+
+# Attaching storage for persistent workoads
 Using a [4TB Western Digital Passport](https://products.wdc.com/library/AAG/ENG/4078-705155.pdf). 
 Find it's UUID with `blkid` \
 Add it to `/etc/fstab` so it auto-mounts after restart. 
 ```bash
 sudo nano /etc/fstab
 UUID=5f88bef3-9f95-4c12-b621-c51859200da7 /media/k8s_store	auto rw,sync,user 0 0
+```
+
+A persistent volume will create itself under /media_k8s_store. 
+- After it is created create a sym-link to it: `ln <pv_path> <alias>`
+
+Export the alias via NFS. This way other hosts can mount it. 
+```bash
+useradd -u 8888 -g 8888 nfs
+sudo nano /etc/exports
+/media/<alias> 192.168.86.0/24(rw,no_subtree_check,all_squash,anonuid=8888,anongid=8888)
 ```
 
 Create the mount point folder `mkdir /media/k8s_store`. \

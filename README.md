@@ -71,6 +71,19 @@ static domain_name_servers=192.168.86.1
 Ubuntu Server:
 https://kirelos.com/how-to-configure-static-ip-address-on-ubuntu-20-04/
 
+### Set the persistent volume folder
+Start the k3s server with `--default-local-storage-path /media/k8s_store`.
+
+I found this didn't work if I changed it on a running server.  So SSH onto the master and patch the local-storage manifest. \
+k3s is built with support to automatically apply changes to the manifests folder:
+
+```bash
+sed -i 's/\/var\/lib\/rancher\/k3s\/storage/\/media\/k8s_store/' /var/lib/rancher/k3s/server/manifests/local-storage.yaml > /var/lib/rancher/k3s/server/manifests/local-storage.yaml
+```
+
+__Note__, patching the manifest is taken care of for new master nodes in
+the [init script](ubuntu/raspberry_init.sh).
+
 # Enable automatic k3s upgrades
 `system-upgrade-controller` has been installed from https://github.com/rancher/system-upgrade-controller.
 
@@ -88,34 +101,29 @@ Add it to `/etc/fstab` so it auto-mounts after restart.
 sudo nano /etc/fstab
 UUID=5f88bef3-9f95-4c12-b621-c51859200da7 /media/k8s_store	auto rw,sync,user 0 0
 ```
-
+## Export PVs as NFS shares
 A persistent volume will create itself under /media_k8s_store. 
-- After it is created create a sym-link to it: `ln <pv_path> <alias>`
+- After it is created create a sym-link to it: `sudo ln -s <path_to_pv> /media/<alias>`
+- Then export it via NFS so it can be mounte by other hosts. E.g. the Emby media folder can be mounted by my laptop. 
 
-Export the alias via NFS. This way other hosts can mount it. 
 ```bash
-useradd -u 8888 -g 8888 nfs
+sudo apt install nfs-common -y
+sudo apt nfs-kernel-server -y
+chmod a+rwxt /media/<alias>
+sudo groupadd -g 8888 nfs
+sudo useradd -g nfs nfs -u 8888
+sudo chown 8888:8888 -R /media/<alias>
+# automatically export the NFS share at boot
 sudo nano /etc/exports
 /media/<alias> 192.168.86.0/24(rw,no_subtree_check,all_squash,anonuid=8888,anongid=8888)
+# reload exports without reboot
+sudo exportfs -r
 ```
 
-Create the mount point folder `mkdir /media/k8s_store`. \
-Mount the disk `sudo mount -a` \
 Add a k8s label to the Pi node:
 ```bash
 kubectl label nodes level3-2a7ff144 pi.attached.storage/exists=true
-````
-Start the k3s server with `--default-local-storage-path /media/k8s_store`.
-
-I found this didn't work if I changed it on a running server.  So SSH onto the master and patch the local-storage manifest. \
-k3s is built with support to automatically apply changes to the manifests folder:
-
-```bash
-sed -i 's/\/var\/lib\/rancher\/k3s\/storage/\/media\/k8s_store/' /var/lib/rancher/k3s/server/manifests/local-storage.yaml > /var/lib/rancher/k3s/server/manifests/local-storage.yaml
 ```
-
-__Note__, patching the manifest is taken care of for new master nodes in
-the [init script](ubuntu/raspberry_init.sh).
 
 ## Network storage
 Right now the Pis use either attached physical storage or temporary pod storage. \

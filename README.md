@@ -104,7 +104,7 @@ UUID=5f88bef3-9f95-4c12-b621-c51859200da7 /media/k8s_store	auto rw,sync,user 0 0
 ## Export PVs as NFS shares
 A persistent volume will create itself under /media_k8s_store. 
 - After it is created create a sym-link to it: `sudo ln -s <path_to_pv> /media/<alias>`
-- Then export it via NFS so it can be mounte by other hosts. E.g. the Emby media folder can be mounted by my laptop. 
+- Then export it via NFS so it can be mounted by other hosts. E.g. the Emby media folder can be mounted by my laptop. 
 
 ```bash
 sudo apt install nfs-common -y

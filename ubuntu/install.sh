@@ -1,19 +1,22 @@
 #!/bin/bash
-# usage: install.sh /dev/sdx /path/to/raspberrypi.img server_token node_name
+# usage: install.sh /dev/sdx /path/to/raspberrypi.img server_token node_name wifi_password
 # /dev/sdx is the SD card disk
 # /path/to/raspberrypi.img is the Raspberry Pi OS image
 # server_token taken from /var/lib/rancher/k3s/server/node-token on kube-master
 # node_name is the node name
+# wifi_password connects the Pi to the wifi
 # if node_name is master, it will get a static IP
 
 # Requires xz-utils:
 # sudo apt-get install xz-utils
 
-if [ "$#" -ne 4 ]
+PI_NAME=$4
+
+if [ "$#" -ne 5 ]
 then
   printf "Incorrect usage\n"
-  printf "./install.sh /dev/sd_card_partition /path/to/raspberrypi.img k3s_token node_name\n"
-  echo "e.g. ./install /dev/sda ~/Downloads/raspios.img ef1cff level4"
+  printf "./install.sh /dev/sd_card_partition /path/to/raspberrypi.img k3s_token node_name wifi_pasword\n"
+  echo "e.g. ./install /dev/sda ~/Downloads/raspios.img ef1cff level4 lorem_ipsum"
   exit 1  
 fi
 
@@ -77,16 +80,19 @@ printf "%s\t%s" "192.168.86.220" "kube-master.local" | sudo tee -a "$ROOT_FOLDER
 
 # set up k3s server options
 printf "%s" "$3" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_token"
-printf "%s" "$4" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_node_name"
+printf "%s" "$PI_NAME" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_node_name"
 
-if [ "$4" == "master" ]; then
-  # set a static IP, https://kirelos.com/how-to-configure-static-ip-address-on-ubuntu-20-04/
-  sudo cp 01-netcfg.yaml "$ROOT_FOLDER/etc/netplan"
-  sudo cp 99-disable-network-config.cfg "$ROOT_FOLDER/etc/cloud"
-  
+if [ "$PI_NAME" == "master" ]; then  
   # mark as master
-  printf "%s" "$4" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_master"
+  printf "%s" "$PI_NAME" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_master"
 fi
+
+sudo cp 01-netcfg.yaml "$ROOT_FOLDER/etc/netplan"
+sudo cp 99-disable-network-config.cfg "$ROOT_FOLDER/etc/cloud"
+sudo sed -i 's/wifi_password/$5/' "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml" > "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml"
+
+# set the hostname to the node name
+sudo echo "$PI_NAME" > "$ROOT_FOLDER/etc/hostname"
 
 # create a path on the Pi where local storage will be written to
 if [ ! -d "$ROOT_FOLDER/media" ]; then

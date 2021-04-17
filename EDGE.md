@@ -1,4 +1,11 @@
 # Adding internet ingress to Pi services
+- GCP LB connects to ratden.elbanyo.net:445
+- ratden.elbanyo.net resolves to my static IP assigned by the ISP
+- A port-forwarding rule allows 445->8443 on 192.168.86.220
+
+8443 corresponds to the service port of [HAProxy](k3s/haproxy/PROXY.md). <br />
+HAProxy is configured to only accept SSL connections on 443 (inside the container), and serves it's own certificate signed by letsencrypt for `*.elbanyo.net`.
+
 
 ## Use a domain name
 https://cloud.google.com/dns/docs/tutorials/create-domain-tutorial#set-up-domain \
@@ -29,12 +36,6 @@ in the common name.<br />
 Create one certificate per sub-domain. I don't think it's possible to update an SSL certificate once it's created, 
   so new domains can't be added easily. Therefore to help create track I've decided to create one certificate per sub domain.
   
-In summary, the load balancer serves up the SSL certificate to the requesting client. \
-The LB terminates the connection, and opens a new one with the Pi at 
-`ratden.elbanyo.net` over port 445. 445 is opened on the Google Nest and forwards
-to port 8443 on the Pi. 8443 corresponds to the service port of [HAProxy](k3s/haproxy/PROXY.md). <br />
-HAProxy is configured to only accept SSL connections on 443 (inside the container), and serves it's own certificate signed by letsencrypt for `*.elbanyo.net`.
-
 ## Generate an SSL certificate for the domain
 Followed https://www.geeksforgeeks.org/using-certbot-manually-for-ssl-certificates/
 ```

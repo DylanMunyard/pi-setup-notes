@@ -5,6 +5,18 @@ KUBE_NODE_NAME=$(</home/ubuntu/.k3s_node_name)
 
 if ! command -v k3s > /dev/null
 then
+  # Wait for ntp to sync the time, otherwise curl: (60) SSL certificate problem: certificate is not yet valid
+  while [[ $(timedatectl status | grep 'System clock synchronized' | grep -Eo '(yes|no)') = no ]]; do
+      sleep 2
+  done
+
+  # set the hostname to the node name so we can tell Pis aparent in the network
+  sudo hostnamectl set-hostname $KUBE_NODE_NAME
+
+  # bring the wifi interface up
+  sudo ip link set wlan0 up
+  sudo netplan apply
+
   # since we created the home folder, it'll be owned by root
   sudo chown -R ubuntu:ubuntu /home/ubuntu
   
@@ -13,11 +25,7 @@ then
   
   # install nfs-kernel-server, required to host nfs shares
   sudo apt install nfs-kernel-server -y
-  
-  # Wait for ntp to sync the time, otherwise curl: (60) SSL certificate problem: certificate is not yet valid
-  while [[ $(timedatectl status | grep 'System clock synchronized' | grep -Eo '(yes|no)') = no ]]; do
-      sleep 2
-  done
+
   if [ -f "/home/ubuntu/.k3s_master" ]; then
     curl -sfL https://get.k3s.io | sh -s - --with-node-id "$(date +"%s")" --default-local-storage-path /media/k8s_store --node-label k3s-upgrade=true --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/ubuntu/k3s_install.txt
     # replace the path where the local-path provisioner will create PVs  

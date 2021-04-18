@@ -13,6 +13,7 @@ See [Edge instructions](EDGE.md) for how to configure external access to it.
 | server_img.img  | The OS image to install |
 | server_token | The k3s server token, from the master: `/var/lib/rancher/k3s/server/node-token` |
 | node_name | The node name to give the Raspberry Pi in the cluster. I describe the level the Pi is installed on, e.g. `level4` |
+| wifi_password | The Wifi password |
 
 ## Find the SD card partion name
 ```

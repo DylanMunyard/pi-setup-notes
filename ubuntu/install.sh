@@ -89,10 +89,7 @@ fi
 
 sudo cp 01-netcfg.yaml "$ROOT_FOLDER/etc/netplan"
 sudo cp 99-disable-network-config.cfg "$ROOT_FOLDER/etc/cloud"
-sudo sed -i 's/wifi_password/$5/' "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml" > "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml"
-
-# set the hostname to the node name
-sudo echo "$PI_NAME" > "$ROOT_FOLDER/etc/hostname"
+sudo sed -i 's/wifi_password/'$5'/' "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml"
 
 # create a path on the Pi where local storage will be written to
 if [ ! -d "$ROOT_FOLDER/media" ]; then

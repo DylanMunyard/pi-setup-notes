@@ -6,7 +6,12 @@ if [ -z $1 ]; then
     exit 1
 fi
 
-docker build . -t "dylanmunyard/ha-proxy-pi:$1"
-docker push "dylanmunyard/ha-proxy-pi:$1"
+docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+
+docker buildx build \
+--platform linux/arm64 \
+-t "dylanmunyard/ha-proxy-pi:$1" . \
+--push
+
 sed -i "s|image: dylanmunyard.*|image: dylanmunyard/ha-proxy-pi:${1}|g" deployment.yaml
 kubectl apply -f deployment.yaml

@@ -9,7 +9,7 @@ kind: ServiceAccount
 metadata:
   name: plex-server
   namespace: plex-server
----VERSION
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:

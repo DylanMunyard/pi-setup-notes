@@ -13,7 +13,7 @@ metadata:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: emby-library
+  name: emby-config
   namespace: emby-server
 spec:
   storageClassName: local-path
@@ -26,20 +26,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: emby-tvshows
-  namespace: emby-server
-spec:
-  storageClassName: local-path
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 500Gi
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: emby-movies
+  name: emby-media
   namespace: emby-server
 spec:
   storageClassName: local-path
@@ -70,25 +57,20 @@ spec:
           image: ghcr.io/linuxserver/emby
           imagePullPolicy: Always
           volumeMounts:
-            - name: emby-library
+            - name: emby-config
               mountPath: "/config"
-            - name: emby-tvshows
-              mountPath: "/data/tvshows"
-            - name: emby-movies
-              mountPath: "/data/movies"
+            - name: emby-media
+              mountPath: "/data/media"
           env:
             - name: TZ
               value: "Australia/Brisbane"
       volumes:
-        - name: emby-library
+        - name: emby-config
           persistentVolumeClaim:
-            claimName: emby-library
-        - name: emby-tvshows
+            claimName: emby-config
+        - name: emby-media
           persistentVolumeClaim:
-            claimName: emby-tvshows
-        - name: emby-movies
-          persistentVolumeClaim:
-            claimName: emby-movies
+            claimName: emby-media
       nodeSelector:
         pi.attached.storage/exists: "true"
         

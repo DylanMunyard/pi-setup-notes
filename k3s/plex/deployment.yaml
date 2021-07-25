@@ -9,7 +9,7 @@ kind: ServiceAccount
 metadata:
   name: plex-server
   namespace: plex-server
----VERSION
+---
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
@@ -26,20 +26,7 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: plx-tvshows
-  namespace: plex-server
-spec:
-  storageClassName: local-path
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 500Gi
----
-kind: PersistentVolumeClaim
-apiVersion: v1
-metadata:
-  name: plx-movies
+  name: plx-media
   namespace: plex-server
 spec:
   storageClassName: local-path
@@ -72,10 +59,8 @@ spec:
           volumeMounts:
             - name: plx-library
               mountPath: "/config"
-            - name: plx-tvshows
-              mountPath: "/data/tvshows"
-            - name: plx-movies
-              mountPath: "/data/movies"
+            - name: plx-media
+              mountPath: "/data/media"
           env:
             - name: VERSION
               value: "docker"
@@ -83,12 +68,9 @@ spec:
         - name: plx-library
           persistentVolumeClaim:
             claimName: plx-library
-        - name: plx-tvshows
+        - name: plx-media
           persistentVolumeClaim:
-            claimName: plx-tvshows
-        - name: plx-movies
-          persistentVolumeClaim:
-            claimName: plx-movies
+            claimName: plx-media
       nodeSelector:
         pi.attached.storage/exists: "true"
         

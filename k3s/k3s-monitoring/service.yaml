@@ -1,0 +1,30 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-grafana-public
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/name: grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-kube-prometheus-prometheus-public
+  namespace: default
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 9090
+      protocol: TCP
+      targetPort: 9090
+  selector:
+    app: prometheus
+    prometheus: prometheus-kube-prometheus-prometheus

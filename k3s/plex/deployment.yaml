@@ -26,6 +26,19 @@ spec:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
+  name: plx-library
+  namespace: plex-server
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
   name: plx-media
   namespace: plex-server
 spec:

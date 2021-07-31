@@ -67,7 +67,7 @@ spec:
       serviceAccountName: plex-server
       containers:
         - name: plex-server
-          image: ghcr.io/linuxserver/plex
+          image: ghcr.io/linuxserver/plex:version-1.23.6.4881-e2e58f321
           imagePullPolicy: Always
           volumeMounts:
             - name: plx-library

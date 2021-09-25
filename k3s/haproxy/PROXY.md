@@ -29,8 +29,9 @@ __NOTE:__ This uses the SSL certificate that was created by letsencrypt. [Instru
 
 Combine the private and public key into one file:
 ```bash
-mkdir /etc/haproxy/certs
-DOMAIN='elbanyo.net' sudo -E bash -c 'cat /etc/letsencrypt/live/$DOMAIN/fullchain.pem /etc/letsencrypt/live/$DOMAIN/privkey.pem > /etc/haproxy/certs/$DOMAIN.pem'
+mkdir -p /etc/haproxy/certs
+export DOMAIN='elbanyo.net' 
+sudo -E bash -c 'cat /etc/letsencrypt/live/$DOMAIN/fullchain.pem /etc/letsencrypt/live/$DOMAIN/privkey.pem > /etc/haproxy/certs/$DOMAIN.pem'
 ```
 
 # Deployment

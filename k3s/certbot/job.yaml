@@ -1,0 +1,50 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: certbot
+  namespace: certbot
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: certbot-letsencrypt
+  namespace: certbot
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: certbot
+  namespace: certbot
+spec:
+  template:
+    spec:
+      serviceAccountName: certbot
+      containers:
+        - name: certbot
+          image: certbot/dns-google:arm64v8-latest
+          command: ["certbot", "certonly", "--dns-google", "--dns-google-credentials", "/gcp/gcp-access.json", "-d", "plex.elbanyo.net,elbanyo.net,www.elbanyo.net", "--agree-tos", "--email", "dmunyard@gmail.com", "--non-interactive"]
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: certbot-letsencrypt
+              mountPath: "/var/lib/letsencrypt"
+            - name: certbot-gcp-access
+              mountPath: "/gcp"
+      restartPolicy: Never
+
+      volumes:
+        - name: certbot-letsencrypt
+          persistentVolumeClaim:
+            claimName: certbot-letsencrypt
+        - name: certbot-gcp-access
+          projected:
+            sources:
+            -  secret:
+                name: certbot-gcp-access

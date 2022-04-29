@@ -63,7 +63,7 @@ then
   sudo mkdir "$ROOT_FOLDER/home/ubuntu/.ssh"  
 fi
 echo "Trust ssh key"
-sudo cp ~/pi/pi-key.pub "$ROOT_FOLDER/home/ubuntu/.ssh/authorized_keys"
+sudo cp ~/.ssh/pi.pub "$ROOT_FOLDER/home/ubuntu/.ssh/authorized_keys"
 
 # Configure Pi init service
 echo "Copy raspberry init scripts"

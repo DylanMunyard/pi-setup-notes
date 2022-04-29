@@ -3,13 +3,14 @@ See [Equipment](EQUIPMENT.md) for what the end result looks like. \
 See [Edge instructions](EDGE.md) for how to configure external access to it.
 
 > https://www.raspberrypi.org/documentation/installation/installing-images/linux.md
-- Download Ubuntu Server for ARM, https://ubuntu.com/download/server/arm
+- Download Ubuntu Server 'Preinstalled server image' from https://cdimage.ubuntu.com/releases/22.04/release/
 - Insert the SD card, find it's partition name from `lsblk -p`, e.g. \dev\sda, dev\sdb etc
+- Unmount the SD card partitions /dev/sda1 /dev/sda2 etc
 - Install everything using [install.sh](ubuntu/install.sh).
 
 | Option |  Value  |
 |:-----:|:--------|
-| /dev/sdcard | The root partition name of the SD card. How-to find it is listed below. |
+| /dev/sdx | Where x is the letter of the SD partition e.g. /dev/sda, /dev/sdb |
 | server_img.img  | The OS image to install |
 | server_token | The k3s server token, from the master: `/var/lib/rancher/k3s/server/node-token` |
 | node_name | The node name to give the Raspberry Pi in the cluster. I describe the level the Pi is installed on, e.g. `level4` |

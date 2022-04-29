@@ -11,6 +11,6 @@ source=$1$2
 server=$3
 destination=$4
 
-echo "scp -i ~/.ssh/pi $source bansion@${server}:$4" >> ~/transfer.txt
+echo "scp -r -i ~/.ssh/pi $source bansion@${server}:$4" >> ~/transfer.txt
 
-scp -r -i ~/.ssh/pi $source bansion@${server}:$4
+scp -r -i ~/.ssh/pi "$source" bansion@${server}:$4

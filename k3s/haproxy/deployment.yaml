@@ -23,15 +23,33 @@ spec:
       serviceAccountName: ha-proxy
       containers:
         - name: ha-proxy
-          image: dylanmunyard/ha-proxy-pi:18
+          image: arm64v8/haproxy
           imagePullPolicy: Always
           volumeMounts:
             - name: ha-proxy-certs
               mountPath: "/usr/local/etc/haproxy/certs"
+            - name: ha-proxy-cfg
+              mountPath: "/usr/local/etc/haproxy"
       volumes:
         - name: ha-proxy-certs
           configMap:
             name: ha-proxy-certs
+        - name: ha-proxy-cfg
+          configMap:
+            name: ha-proxy-cfg
       nodeSelector:
         pi_level: level1
-        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ha-proxy
+  namespace: ha-proxy
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8443  
+      protocol: TCP
+      targetPort: 8443
+  selector:
+    app: ha-proxy

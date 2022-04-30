@@ -20,7 +20,7 @@ docker run \
     -v "$PWD:/var/log/"  \
     -v "/home/dylan/Downloads:/gcp" \
     -v "$PWD:/etc/letsencrypt" \
-    certbot/dns-google certonly --dns-google --dns-google-credentials /gcp/elbanyo-e7173437338c.json -d dylanmyard.dev,plex.dylanmyard.dev,www.dylanmyard.dev --agree-tos --email dmunyard@gmail.com --non-interactive
+    certbot/dns-google certonly --dns-google --dns-google-credentials /gcp/elbanyo-e7173437338c.json -d dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,www.dylanmyard.dev --agree-tos --email dmunyard@gmail.com --non-interactive
 ```
 
 Combine the private and public key into one file:

@@ -1,0 +1,87 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sonarr
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sonarr
+  namespace: sonarr
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sonarr-config
+  namespace: sonarr
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: sonarr-tv
+  namespace: sonarr
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sonarr
+  namespace: sonarr
+spec:
+  selector:
+    matchLabels:
+      app: sonarr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      serviceAccountName: sonarr
+      containers:
+        - name: sonarr
+          image: lscr.io/linuxserver/sonarr:arm64v8-latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: sonarr-config
+              mountPath: "/config"
+            - name: sonarr-tv
+              mountPath: "/tv"
+          env:
+            - name: TZ
+              value: "Australia/Brisbane"
+      volumes:
+        - name: sonarr-config
+          persistentVolumeClaim:
+            claimName: sonarr-config
+        - name: sonarr-tv
+          persistentVolumeClaim:
+            claimName: sonarr-tv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr
+  namespace: sonarr
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 8989
+      protocol: TCP
+      targetPort: 8989
+  selector:
+    app: sonarr

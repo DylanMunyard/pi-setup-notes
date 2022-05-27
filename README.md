@@ -4,7 +4,8 @@ See [Edge instructions](EDGE.md) for how to configure external access to it.
 
 > https://www.raspberrypi.org/documentation/installation/installing-images/linux.md
 - Download Ubuntu Server 'Preinstalled server image' from https://cdimage.ubuntu.com/releases/22.04/release/
-- Insert the SD card, find it's partition name from `lsblk -p`, e.g. \dev\sda, dev\sdb etc
+- Insert the SD card, find it's partition name from `lsblk -p`, e.g. \dev\sdacd 
+- Go to the mounted directories and delete the contents. This is for when the SD card was previously used.
 - Unmount the SD card partitions /dev/sda1 /dev/sda2 etc
 - Install everything using [install.sh](ubuntu/install.sh).
 

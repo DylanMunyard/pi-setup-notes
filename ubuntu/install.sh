@@ -53,15 +53,8 @@ echo "$CMD_LINE" | sudo tee "$BOOT_FOLDER/cmdline.txt"
 # enable SSH
 echo "Enable ssh"
 sudo touch "$BOOT_FOLDER/ssh"
-if [ ! -d "$ROOT_FOLDER/home/ubuntu" ]; then
-  echo "Creating ubuntu user folder $ROOT_FOLDER/home/ubuntu"
-  sudo mkdir "$ROOT_FOLDER/home/ubuntu"
-fi
-
-if [ ! -f "$ROOT_FOLDER/home/ubuntu/.ssh" ]
-then
-  sudo mkdir "$ROOT_FOLDER/home/ubuntu/.ssh"  
-fi
+echo "Creating ubuntu user folder $ROOT_FOLDER/home/ubuntu"
+sudo mkdir -p "$ROOT_FOLDER/home/ubuntu/.ssh"
 echo "Trust ssh key"
 sudo cp ~/.ssh/pi.pub "$ROOT_FOLDER/home/ubuntu/.ssh/authorized_keys"
 
@@ -92,9 +85,5 @@ sudo cp 99-disable-network-config.cfg "$ROOT_FOLDER/etc/cloud"
 sudo sed -i 's/wifi_password/'$5'/' "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml"
 
 # create a path on the Pi where local storage will be written to
-if [ ! -d "$ROOT_FOLDER/media" ]; then
-  echo "Creating local-path storage location $ROOT_FOLDER/media/k8s_store"
-  sudo mkdir "$ROOT_FOLDER/media"
-fi
-
-sudo mkdir "$ROOT_FOLDER/media/k8s_store"
+echo "Creating local-path storage location $ROOT_FOLDER/media/k8s_store"
+sudo mkdir -p "$ROOT_FOLDER/media/k8s_store"

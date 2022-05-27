@@ -49,6 +49,19 @@ spec:
     requests:
       storage: 500Gi
 ---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: plx-media-v2
+  namespace: plex-server
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4000Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -74,6 +87,8 @@ spec:
               mountPath: "/config"
             - name: plx-media
               mountPath: "/data/media"
+            - name: plx-media-v2
+              mountPath: "/data/media_v2"
             - name: banners-cert
               mountPath: "/certs"
           env:
@@ -86,6 +101,9 @@ spec:
         - name: plx-media
           persistentVolumeClaim:
             claimName: plx-media
+        - name: plx-media-v2
+          persistentVolumeClaim:
+            claimName: plx-media-v2
         - name: banners-cert
           configMap:
             name: banners-cert

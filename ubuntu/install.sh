@@ -10,7 +10,11 @@
 # Requires xz-utils:
 # sudo apt-get install xz-utils
 
-PI_NAME=$4
+Device=$1
+Image=$2
+Token=$3
+NodeName=$4
+WifiPassword=$5
 
 if [ "$#" -ne 5 ]
 then
@@ -22,27 +26,19 @@ fi
 
 # Write the Raspberry OS to the SD card
 echo "Write the Raspberry Pi OS to the SD Card"
-xz -d < "$2" - | sudo dd bs=4M of="$1" status=progress conv=fsync
+xzcat "$Image" | sudo dd bs=32M of="$Device" status=progress conv=fsync
 echo "Done - Write the Raspberry Pi OS to the SD Card"
 
 # mount the partitions
 MNT_FOLDER="/media/$(hostname)"
 BOOT_FOLDER="$MNT_FOLDER/pi_boot"
 ROOT_FOLDER="$MNT_FOLDER/pi_root"
-if [ -d "$BOOT_FOLDER" ]; then
-  echo "Removing existing boot mount folder $BOOT_FOLDER"
-  rm -rf "$BOOT_FOLDER"
-fi
-if [ -d "$ROOT_FOLDER" ]; then
-  echo "Removing existing root mount folder $ROOT_FOLDER"
-  rm -rf "$ROOT_FOLDER"
-fi
 
-echo "Mounting boot partition ${1}1$BOOT_FOLDER"
-mkdir "$BOOT_FOLDER" && sudo mount "${1}1" "$BOOT_FOLDER"
+echo "Mounting boot partition ${Device}1$BOOT_FOLDER"
+mkdir -p "$BOOT_FOLDER" && sudo mount "${Device}1" "$BOOT_FOLDER"
 
-echo "Mounting root partition ${1}2$ROOT_FOLDER"
-mkdir "$ROOT_FOLDER" && sudo mount "${1}2" "$ROOT_FOLDER"
+echo "Mounting root partition ${Device}2$ROOT_FOLDER"
+mkdir -p "$ROOT_FOLDER" && sudo mount "${Device}2" "$ROOT_FOLDER"
 
 # enable kernel parameters
 echo "Enable kernel parameters"
@@ -72,17 +68,17 @@ fi
 printf "%s\t%s" "192.168.86.220" "kube-master.local" | sudo tee -a "$ROOT_FOLDER/etc/hosts"
 
 # set up k3s server options
-printf "%s" "$3" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_token"
-printf "%s" "$PI_NAME" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_node_name"
+printf "%s" "$Token" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_token"
+printf "%s" "$NodeName" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_node_name"
 
-if [ "$PI_NAME" == "master" ]; then  
+if [ "$NodeName" == "master" ]; then  
   # mark as master
-  printf "%s" "$PI_NAME" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_master"
+  printf "%s" "$NodeName" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_master"
 fi
 
 sudo cp 01-netcfg.yaml "$ROOT_FOLDER/etc/netplan"
 sudo cp 99-disable-network-config.cfg "$ROOT_FOLDER/etc/cloud"
-sudo sed -i 's/wifi_password/'$5'/' "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml"
+sudo sed -i 's/wifi_password/'$WifiPassword'/' "$ROOT_FOLDER/etc/netplan/01-netcfg.yaml"
 
 # create a path on the Pi where local storage will be written to
 echo "Creating local-path storage location $ROOT_FOLDER/media/k8s_store"

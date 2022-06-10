@@ -102,3 +102,20 @@ spec:
       targetPort: 8191
   selector:
     app: flaresolverr
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jacket-ingress
+  namespace: jackett
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: PathPrefix(`/jackett`)
+    kind: Rule
+    services:
+    - name: jackett
+      port: 9117
+      kind: Service
+      namespace: jackett

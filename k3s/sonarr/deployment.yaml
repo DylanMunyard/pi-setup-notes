@@ -85,3 +85,20 @@ spec:
       targetPort: 8989
   selector:
     app: sonarr
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: sonarr-ingress
+  namespace: sonarr
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: PathPrefix(`/sonarr`)
+    kind: Rule
+    services:
+    - name: sonarr
+      port: 8989
+      kind: Service
+      namespace: sonarr

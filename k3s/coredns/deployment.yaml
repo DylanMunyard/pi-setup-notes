@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: home-dns
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: home-dns
+  namespace: home-dns
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dns-config
+  namespace: home-dns
+data:
+  Corefile: |
+    bansion.home {
+        file /etc/coredns/Zonefile
+        whoami
+        log
+    }
+
+    . {
+        forward . 8.8.8.8 9.9.9.9
+        log
+        errors
+        whoami
+    } 
+  Zonefile: |
+    $ORIGIN bansion.home.
+    @ 3600 IN  SOA sns.dns.icann.org. noc.dns.icann.org. (
+          2017042745 ; serial
+          7200       ; refresh (2 hours)
+          3600       ; retry (1 hour)
+          1209600    ; expire (2 weeks)
+          3600       ; minimum (1 hour)
+          )
+
+      3600 IN NS a.iana-servers.net.
+      3600 IN NS b.iana-servers.net.
+
+    bansion.home. IN A     192.168.86.220
+                  IN AAAA ::1
+
+    www           IN A     192.168.86.220
+                  IN AAAA ::1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: home-dns
+  namespace: home-dns
+spec:
+  selector:
+    matchLabels:
+      app: home-dns
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: home-dns
+    spec:
+      serviceAccountName: home-dns
+      containers:
+        - name: home-dns
+          image: coredns/coredns
+          args: ["-conf", "/etc/coredns/Corefile"]
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: home-dns-config
+              mountPath: "/etc/coredns"
+      volumes:
+        - name: home-dns-config
+          configMap:
+            name: dns-config

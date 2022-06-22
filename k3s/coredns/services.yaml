@@ -1,0 +1,33 @@
+# Because this is assigning port 53 on the host, DNS will start resolving through the pod from the node.
+# (because node's /etc/resolve.conf lists nameserver 127.0.0.53)
+# Apply deployment.yaml first, then services.yaml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-dns-udp
+  namespace: home-dns
+spec:
+  type: LoadBalancer
+  ports:
+  - name: dns
+    port: 53
+    protocol: UDP
+    targetPort: 53
+  selector:
+    app: home-dns
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-dns-tcp
+  namespace: home-dns
+spec:
+  type: LoadBalancer
+  ports:
+  - name: dns-tcp
+    port: 53
+    protocol: TCP
+    targetPort: 53
+  selector:
+    app: home-dns

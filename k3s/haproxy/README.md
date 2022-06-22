@@ -5,11 +5,9 @@ Reverse proxy operating on the edge (dylanmyard.dev), proxies to the stuff runni
 `kubectl apply -f namespace.yaml`
 
 # haproxy.cfg
-Deploy haproxy.cfg to cluster as config map
+Defined in [config.yaml](config.yaml)
 
-`kubectl create cm ha-proxy-cfg --from-file=haproxy.cfg -n ha-proxy`
-
-The file needs to end with a empty newline.
+Config needs to end with a empty newline.
 
 # SSL
 Followed this guide: https://russt.me/2018/04/wildcard-lets-encrypt-certificates-with-certbot/

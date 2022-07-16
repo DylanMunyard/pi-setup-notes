@@ -18,7 +18,16 @@ docker run \
     -v "$PWD:/var/log/"  \
     -v "/home/dylan/Downloads:/gcp" \
     -v "$PWD:/etc/letsencrypt" \
-    certbot/dns-google certonly --dns-google --dns-google-credentials /gcp/elbanyo-e7173437338c.json -d dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,www.dylanmyard.dev --agree-tos --email dmunyard@gmail.com --non-interactive
+    certbot/dns-google certonly --dns-google --dns-google-credentials /gcp/elbanyo-e7173437338c.json -d dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,sonarr.dylanmyard.dev,www.dylanmyard.dev --agree-tos --email dmunyard@gmail.com --non-interactive
+```
+
+```powershell
+docker run `
+    -u root `
+    -v "C:\Users\DylanMunyard\projects\pi-setup-notes\k3s\haproxy:/var/log/"  `
+    -v "C:\Users\DylanMunyard\Downloads:/gcp" `
+    -v "C:\Users\DylanMunyard\projects\pi-setup-notes\k3s\haproxy:/etc/letsencrypt" `
+    certbot/dns-google certonly --dns-google --dns-google-credentials /gcp/elbanyo-c215a55008fe.json -d dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,sonarr.dylanmyard.dev,www.dylanmyard.dev --agree-tos --email dmunyard@gmail.com --non-interactive
 ```
 
 Combine the private and public key into one file:

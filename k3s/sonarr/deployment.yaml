@@ -81,6 +81,7 @@ spec:
   type: LoadBalancer
   ports:
     - port: 8989
+      name: http
       protocol: TCP
       targetPort: 8989
   selector:

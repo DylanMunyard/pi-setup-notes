@@ -53,6 +53,9 @@ data:
         mode http
         
         server pi sonarr.sonarr:8989 check
+        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
+        http-response set-header Access-Control-Allow-Methods GET,POST
+        http-response set-header Access-Control-Allow-Credentials true
 
     backend wiki
         mode http

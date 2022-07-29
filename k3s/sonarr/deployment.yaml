@@ -96,7 +96,7 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: PathPrefix(`/sonarr`)
+  - match: Host(`sonarr.bansion`)
     kind: Rule
     services:
     - name: sonarr

@@ -17,7 +17,7 @@ metadata:
   namespace: home-dns
 data:
   Corefile: |
-    bansion.home {
+    bansion {
         file /etc/coredns/Zonefile
         whoami
         log
@@ -30,7 +30,7 @@ data:
         whoami
     } 
   Zonefile: |
-    $ORIGIN bansion.home.
+    $ORIGIN bansion.
     @ 3600 IN  SOA sns.dns.icann.org. noc.dns.icann.org. (
           2017042745 ; serial
           7200       ; refresh (2 hours)
@@ -42,11 +42,23 @@ data:
       3600 IN NS a.iana-servers.net.
       3600 IN NS b.iana-servers.net.
 
-    bansion.home. IN A     192.168.86.220
-                  IN AAAA ::1
+    bansion. IN A     192.168.86.210
+             IN AAAA  ::ffff:c0a8:56d2
 
-    www           IN A     192.168.86.220
-                  IN AAAA ::1
+    plex.bansion. IN A     192.168.86.210
+                  IN AAAA  ::ffff:c0a8:56d2
+
+    sonarr.bansion. IN A   192.168.86.220
+                  IN AAAA  ::ffff:c0a8:56dc
+
+    jackett.bansion. IN A  192.168.86.220
+                  IN AAAA  ::ffff:c0a8:56dc
+
+    linkerd.bansion. IN A  192.168.86.220
+                  IN AAAA  ::ffff:c0a8:56dc
+
+    www           IN A     192.168.86.210
+                  IN AAAA  ::ffff:c0a8:56d2
 ---
 apiVersion: apps/v1
 kind: Deployment

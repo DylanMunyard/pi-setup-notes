@@ -112,7 +112,7 @@ spec:
   entryPoints:
     - web
   routes:
-  - match: PathPrefix(`/jackett`)
+  - match: Host(`jackett.bansion`)
     kind: Rule
     services:
     - name: jackett

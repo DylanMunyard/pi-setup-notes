@@ -1,0 +1,17 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: linkerd-dashboard-ingress
+  namespace: linkerd-viz
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`linkerd.bansion`)
+    kind: Rule
+    services:
+    - name: web
+      port: 8084
+      kind: Service
+      namespace: linkerd-viz

@@ -1,43 +1,26 @@
 # HAProxy
 Reverse proxy operating on the edge (dylanmyard.dev), proxies to the stuff running inside network.
 
-# Deploy the namespace
+## 1. Deploy the namespace
 `kubectl apply -f namespace.yaml`
 
-# haproxy.cfg
-Defined in [config.yaml](config.yaml)
+## 2. Deploy certbot SSL renewal
+The SSL cert for dylanmyard.dev is auto renewed by the [cronjob.yaml](cronjob.yaml). Followed this guide: https://russt.me/2018/04/wildcard-lets-encrypt-certificates-with-certbot/
+
+- Create a secret from the GCP credentials `kubectl create secret generic gcp-credentials --from-file credentials.json=./elbanyo-c215a55008fe.json --namespace ha-proxy`
+- Deploy the cronjob `kubectl apply -f cronjob.yaml`
+
+### What does it do
+The CronJob runs at midnight on the first day of Feb, April, June, August, October, December. 
+
+It uses certbot to request an SSL certificate for dylanmyard.dev and all sub domains. 
+
+After the certificate is issued, the CronJob will deploy the certificate to a ConfigMap called `ha-proxy-certs` which is mounted by the ha-proxy container to access the SSL certificate.
+
+## 3. Deploy ha-proxy config
+`kubectl apply -f config.yaml`
 
 Config needs to end with a empty newline.
 
-# SSL
-Followed this guide: https://russt.me/2018/04/wildcard-lets-encrypt-certificates-with-certbot/
-
-```bash
-docker run \
-    -u root \
-    -v "$PWD:/var/log/"  \
-    -v "/home/dylan/Downloads:/gcp" \
-    -v "$PWD:/etc/letsencrypt" \
-    certbot/dns-google certonly --dns-google --dns-google-credentials /gcp/elbanyo-e7173437338c.json -d dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,sonarr.dylanmyard.dev,www.dylanmyard.dev --agree-tos --email dmunyard@gmail.com --non-interactive
-```
-
-```powershell
-docker run `
-    -u root `
-    -v "C:\Users\DylanMunyard\projects\pi-setup-notes\k3s\haproxy:/var/log/"  `
-    -v "C:\Users\DylanMunyard\Downloads:/gcp" `
-    -v "C:\Users\DylanMunyard\projects\pi-setup-notes\k3s\haproxy:/etc/letsencrypt" `
-    certbot/dns-google certonly --dns-google --dns-google-credentials /gcp/elbanyo-c215a55008fe.json -d dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,sonarr.dylanmyard.dev,www.dylanmyard.dev --agree-tos --email dmunyard@gmail.com --non-interactive
-```
-
-Combine the private and public key into one file:
-```bash
-export DOMAIN='dylanmyard.dev' 
-cat $PWD/live/$DOMAIN/fullchain.pem $PWD/live/$DOMAIN/privkey.pem > $DOMAIN.pem
-```
-
-## Deploy to Kube
-1. Create the ConfigMap containing the certificate data \
-`kubectl create cm ha-proxy-certs --from-file=$DOMAIN.pem -n ha-proxy`
-2. Deploy the rest \
-`kubectl apply -f deployment.yaml -f service.yaml`
+# 4. Deploy ha-proxy
+`kubectl apply -f deployment.yaml`

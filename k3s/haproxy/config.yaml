@@ -17,7 +17,7 @@ data:
       mode http
       
       # Receive traffic via HTTPs only
-      bind *:8443 ssl crt /usr/local/etc/haproxy/certs/dylanmyard.dev.pem
+      bind *:8443 ssl crt /usr/local/etc/haproxy/certs/dylanmyard.dev
 
       http-request set-var(txn.origin) hdr(Origin)
       

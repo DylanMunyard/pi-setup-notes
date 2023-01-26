@@ -30,6 +30,10 @@ umount /dev/sda1
 
 # What install.sh does
 
+### Install VXLAN module
+`sudo apt install linux-modules-extra-raspi` \
+https://docs.k3s.io/advanced#enabling-vxlan-for-ubuntu-2110-on-raspberry-pi
+
 ### Enable cgroups
 Add `cgroup_memory=1 cgroup_enable=memory` to /boot/cmdline.txt
 https://rancher.com/docs/k3s/latest/en/advanced/#enabling-cgroups-for-raspbian-buster

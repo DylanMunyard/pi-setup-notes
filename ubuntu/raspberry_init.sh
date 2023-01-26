@@ -10,6 +10,8 @@ then
       sleep 2
   done
 
+  sudo apt-get update
+
   # set the hostname to the node name so we can tell Pis aparent in the network
   sudo hostnamectl set-hostname $KUBE_NODE_NAME
 
@@ -37,3 +39,5 @@ then
     curl -sfL https://get.k3s.io | sh -s - agent --token "$K3S_TOKEN" --server "https://192.168.86.220:6443"  --node-name "$KUBE_NODE_NAME" --with-node-id "$(date +"%s")" --node-label k3s-upgrade=true --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/ubuntu/k3s_install.txt
   fi
 fi
+
+sudo shutdown -r now

@@ -37,8 +37,6 @@ spec:
         - name: ha-proxy-cfg
           configMap:
             name: ha-proxy-cfg
-      nodeSelector:
-        pi_level: level1
 ---
 apiVersion: v1
 kind: Service

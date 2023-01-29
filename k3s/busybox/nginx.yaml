@@ -1,0 +1,68 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: nginx-quick
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-quick
+  namespace: nginx-quick
+spec:
+  selector:
+    matchLabels:
+      app: nginx-quick
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx-quick
+    spec:
+      containers:
+        - name: nginx-quick
+          image: nginx
+          imagePullPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-quick
+  namespace: nginx-quick
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8888
+      name: http
+      protocol: TCP
+      targetPort: 80
+  selector:
+    app: nginx-quick
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: nginx-quick-ingress
+  namespace: nginx-quick
+spec:
+  routes:
+  - kind: Rule
+    match: Path(`/traefik`)
+    middlewares:
+    - name: nginx-quick-replacepath
+      namespace: nginx-quick
+    services:
+    - name: nginx-quick
+      port: 8888
+      kind: Service
+      namespace: nginx-quick
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: nginx-quick-replacepath
+  namespace: nginx-quick
+spec:
+  stripPrefix:
+    prefixes:
+      - /traefik

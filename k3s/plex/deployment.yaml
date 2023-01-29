@@ -80,7 +80,7 @@ spec:
       serviceAccountName: plex-server
       containers:
         - name: plex-server
-          image: linuxserver/plex:1.28.2
+          image: linuxserver/plex:1.30.2
           imagePullPolicy: Always
           volumeMounts:
             - name: plx-library

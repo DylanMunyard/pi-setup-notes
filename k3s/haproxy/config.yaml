@@ -27,6 +27,8 @@ data:
       
       use_backend sonarr if { req.hdr(host) -i sonarr.dylanmyard.dev }
       
+      use_backend radarr if { req.hdr(host) -i radarr.dylanmyard.dev }
+      
       # Choose the default pool of backend servers
       default_backend wiki
 
@@ -53,6 +55,14 @@ data:
         mode http
         
         server pi sonarr.sonarr:8989 check
+        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
+        http-response set-header Access-Control-Allow-Methods GET,POST
+        http-response set-header Access-Control-Allow-Credentials true
+
+    backend radarr
+        mode http
+        
+        server pi radarr.radarr:7878 check
         http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
         http-response set-header Access-Control-Allow-Methods GET,POST
         http-response set-header Access-Control-Allow-Credentials true

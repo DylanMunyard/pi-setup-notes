@@ -1,0 +1,105 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: radarr
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: radarr
+  namespace: radarr
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: radarr-config
+  namespace: radarr
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: radarr-movies
+  namespace: radarr
+spec:
+  storageClassName: local-path
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+  namespace: radarr
+spec:
+  selector:
+    matchLabels:
+      app: radarr
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: radarr
+    spec:
+      serviceAccountName: radarr
+      containers:
+        - name: radarr
+          image: lscr.io/linuxserver/radarr:arm64v8-latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: radarr-config
+              mountPath: "/config"
+            - name: radarr-movies
+              mountPath: "/movies"
+          env:
+            - name: TZ
+              value: "Australia/Brisbane"
+      volumes:
+        - name: radarr-config
+          persistentVolumeClaim:
+            claimName: radarr-config
+        - name: radarr-movies
+          persistentVolumeClaim:
+            claimName: radarr-movies
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  namespace: radarr
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 7878
+      name: http
+      protocol: TCP
+      targetPort: 7878
+  selector:
+    app: radarr
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: radarr-ingress
+  namespace: radarr
+spec:
+  entryPoints:
+    - web
+  routes:
+  - match: Host(`radarr.bansion`)
+    kind: Rule
+    services:
+    - name: radarr
+      port: 7878
+      kind: Service
+      namespace: radarr

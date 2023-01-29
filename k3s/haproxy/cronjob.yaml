@@ -112,7 +112,7 @@ spec:
             - name: certbot
               image: certbot/dns-google:arm64v8-latest
               imagePullPolicy: Always
-              args: ["certonly", "--dns-google", "--dns-google-credentials", "/gcp/credentials.json", "-d", "dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,sonarr.dylanmyard.dev,www.dylanmyard.dev", "--agree-tos", "--email", "dmunyard@gmail.com", "--non-interactive"]
+              args: ["certonly", "--dns-google", "--dns-google-credentials", "/gcp/credentials.json", "-d", "dylanmyard.dev,plex.dylanmyard.dev,qb.dylanmyard.dev,sonarr.dylanmyard.dev,radarr.dylanmyard.dev,www.dylanmyard.dev", "--agree-tos", "--email", "dmunyard@gmail.com", "--non-interactive"]
               resources:
                 requests:
                   memory: "64Mi"

@@ -83,7 +83,8 @@ metadata:
   name: certificate-renewal-job
   namespace: ha-proxy
 spec:
-  schedule: "0 0 2,4,6,8,10,12 * *"
+  # At 00:00, on day 1 of the month, every 3 months
+  schedule: "0 0 1 */3 *"
   jobTemplate:
     spec:
       template:

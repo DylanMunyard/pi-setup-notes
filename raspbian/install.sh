@@ -66,7 +66,7 @@ sudo cp raspberry_init.sh "$ROOT_FOLDER/usr/local/bin"
 sudo chmod +x "$ROOT_FOLDER/usr/local/bin/raspberry_init.sh"
 
 # set up the master server IP address variable
-printf "%s\t%s" "192.168.86.220" "kube-master.local" | sudo tee -a "$ROOT_FOLDER/etc/hosts"
+printf "%s\t%s" "192.168.1.220" "kube-master.local" | sudo tee -a "$ROOT_FOLDER/etc/hosts"
 
 # set up k3s server options
 printf "%s" "$3" | sudo tee -a "$ROOT_FOLDER/home/pi/.k3s_token"

@@ -42,22 +42,22 @@ data:
       3600 IN NS a.iana-servers.net.
       3600 IN NS b.iana-servers.net.
 
-    bansion. IN A     192.168.86.210
+    bansion. IN A     192.168.1.210
              IN AAAA  ::ffff:c0a8:56d2
 
-    plex.bansion. IN A     192.168.86.210
+    plex.bansion. IN A     192.168.1.210
                   IN AAAA  ::ffff:c0a8:56d2
 
-    sonarr.bansion. IN A   192.168.86.220
+    sonarr.bansion. IN A   192.168.1.220
                   IN AAAA  ::ffff:c0a8:56dc
 
-    jackett.bansion. IN A  192.168.86.220
+    jackett.bansion. IN A  192.168.1.220
                   IN AAAA  ::ffff:c0a8:56dc
 
-    linkerd.bansion. IN A  192.168.86.220
+    linkerd.bansion. IN A  192.168.1.220
                   IN AAAA  ::ffff:c0a8:56dc
 
-    www           IN A     192.168.86.210
+    www           IN A     192.168.1.210
                   IN AAAA  ::ffff:c0a8:56d2
 ---
 apiVersion: apps/v1

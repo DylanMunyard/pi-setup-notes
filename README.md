@@ -70,9 +70,9 @@ Raspbian OS:
 Edit `/etc/dhcpcd.conf`:
 ```
 interface eth0
-static ip_address=192.168.86.220/24
-static routers=192.168.86.1
-static domain_name_servers=192.168.86.1
+static ip_address=192.168.1.220/24
+static routers=192.168.1.1
+static domain_name_servers=192.168.1.1
 ```
 
 Ubuntu Server:
@@ -122,7 +122,7 @@ sudo useradd -g nfs nfs -u 8888
 sudo chown 8888:8888 -R /media/<alias>
 # automatically export the NFS share at boot
 sudo nano /etc/exports
-/media/<alias> 192.168.86.0/24(rw,no_subtree_check,all_squash,anonuid=8888,anongid=8888)
+/media/<alias> 192.168.1.0/24(rw,no_subtree_check,all_squash,anonuid=8888,anongid=8888)
 # reload exports without reboot
 sudo exportfs -r
 ```
@@ -139,12 +139,12 @@ issues and application errors. I documented what I got working here:
 - [NFS](NFS.md)
 
 ## k3s agent options
-`curl -sfL https://get.k3s.io | K3S_URL=https://192.168.86.220:6443 K3S_TOKEN=$K3S_TOKEN K3S_NODE_NAME="$KUBE_NODE_NAME" sh -s - --with-node-id "$(date +"%s")" --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/pi/k3s_install.txt`
+`curl -sfL https://get.k3s.io | K3S_URL=https://192.168.1.220:6443 K3S_TOKEN=$K3S_TOKEN K3S_NODE_NAME="$KUBE_NODE_NAME" sh -s - --with-node-id "$(date +"%s")" --node-label pi-cluster-level="$KUBE_NODE_NAME" > /home/pi/k3s_install.txt`
 
 | Option |  Value  | Description |
 |:-----|--------:|:------|
 | K3S_TOKEN environment variable  | Taken from `/var/lib/rancher/k3s/server/node-token` on the master node. | Authentication token for agent->server. |
-| K3S_URL environment variable  |  https://192.168.86.220:6443 | Important to use the IP, and not an alias. |
+| K3S_URL environment variable  |  https://192.168.1.220:6443 | Important to use the IP, and not an alias. |
 | K3S_NODE_NAME | The name of the node as it appears in `kubectl get nodes` | Specify the level in the cluster. |
 | --with-node-id option | ` "$(date +"%s")"` | Specifies a unique suffix for the node name. This is necessary to avoid conflicts with previous attempts to join the cluster under the same node name. It causes authentication issues if you try to re-use the name. |
 | --node-label | `pi-cluster-level="$KUBE_NODE_NAME"` | Add this is a selectable node label. Will come in handy later when deploying to specific Pis |
@@ -159,7 +159,7 @@ If the mount persists even after removing SD, force unmount: \
 Find the Pi IP using nmap:
 > https://www.howtogeek.com/423709/how-to-see-all-devices-on-your-network-with-nmap-on-linux/
 
-`sudo nmap -sn 192.168.86.0/24`
+`sudo nmap -sn 192.168.1.0/24`
 
 ## Shutdown Pi
 Shut down the Pi

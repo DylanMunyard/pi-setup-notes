@@ -40,12 +40,12 @@ data:
       option httpchk
       http-check expect status 401
       
-      server bansion 192.168.86.210:32400 check
+      server bansion 192.168.1.210:32400 check
 
     backend qbittorrent
         mode http
         
-        server bansion 192.168.86.210:8080 check
+        server bansion 192.168.1.210:8080 check
         http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
         http-response set-header Access-Control-Allow-Credentials true
         http-response set-header Access-Control-Allow-Methods GET,POST
@@ -70,4 +70,4 @@ data:
     backend wiki
         mode http
         
-        server bansion 192.168.86.210:42400 check
+        server bansion 192.168.1.210:42400 check

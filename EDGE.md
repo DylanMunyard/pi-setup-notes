@@ -1,7 +1,7 @@
 # Adding internet ingress to Pi services
 - GCP LB connects to ratden.dylanmyard.dev:445
 - ratden.dylanmyard.dev resolves to my static IP assigned by the ISP
-- A port-forwarding rule allows 445->8443 on 192.168.86.220
+- A port-forwarding rule allows 445->8443 on 192.168.1.220
 
 8443 corresponds to the service port of [HAProxy](k3s/haproxy/PROXY.md). <br />
 HAProxy is configured to only accept SSL connections on 443 (inside the container), and serves it's own certificate signed by letsencrypt for `*.dylanmyard.dev`.

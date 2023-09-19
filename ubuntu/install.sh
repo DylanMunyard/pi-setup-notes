@@ -65,7 +65,7 @@ then
 fi
 
 # set up the master server IP address variable
-printf "%s\t%s" "192.168.86.220" "kube-master.local" | sudo tee -a "$ROOT_FOLDER/etc/hosts"
+printf "%s\t%s" "192.168.1.220" "kube-master.local" | sudo tee -a "$ROOT_FOLDER/etc/hosts"
 
 # set up k3s server options
 printf "%s" "$Token" | sudo tee -a "$ROOT_FOLDER/home/ubuntu/.k3s_token"

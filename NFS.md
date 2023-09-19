@@ -39,7 +39,7 @@ sudo useradd -g nfs nfs -u 8888
 sudo chown 8888:8888 -R <NFS folder>
 # automatically export the NFS share at boot
 sudo nano /etc/exports
-<NFS folder> 192.168.86.0/24(rw,no_subtree_check,all_squash,anonuid=1001,anongid=8888)
+<NFS folder> 192.168.1.0/24(rw,no_subtree_check,all_squash,anonuid=1001,anongid=8888)
 # reload exports without reboot
 sudo exportfs -r
 ```
@@ -47,7 +47,7 @@ sudo exportfs -r
 From another host, to mount the NFS:
 ```bash
 mkdir ~/nfs
-sudo mount -t nfs -vvvv 192.168.86.29:/<NFS folder> /home/dylan/nfs
+sudo mount -t nfs -vvvv 192.168.1.29:/<NFS folder> /home/dylan/nfs
 
 # and to unmount
 sudo umount -f -l nfs
@@ -56,7 +56,7 @@ sudo umount -f -l nfs
 To automount it
 ```bash
 sudo nano /etc/fstab
-192.168.86.79:/192.168.86.29:/<NFS folder> /home/dylan/nfs nfs defaults 0 0
+192.168.1.79:/192.168.1.29:/<NFS folder> /home/dylan/nfs nfs defaults 0 0
 ```
 
 ### Optional
@@ -84,7 +84,7 @@ https://github.com/kubernetes-sigs/nfs-subdir-external-provisioner
 ```bash
 helm repo add nfs-subdir-external-provisioner https://kubernetes-sigs.github.io/nfs-subdir-external-provisioner/
 helm install nfs-subdir-external-provisioner nfs-subdir-external-provisioner/nfs-subdir-external-provisioner \
-    --set nfs.server=192.168.86.29 \
+    --set nfs.server=192.168.1.29 \
     --set nfs.path=/export/nfs
     
 # to uninstall

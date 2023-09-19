@@ -4,13 +4,13 @@ network:
   ethernets:
     eth0:
       dhcp4: yes
-      gateway4: 192.168.86.1
+      gateway4: 192.168.1.1
       nameservers:
         addresses: [ 8.8.8.8, 1.1.1.1 ]
 #  wifis:
 #    wlan0:
 #      dhcp4: yes
-#      gateway4: 192.168.86.1
+#      gateway4: 192.168.1.1
 #      nameservers:
 #        addresses: [ 8.8.8.8, 1.1.1.1 ]
 #      access-points:

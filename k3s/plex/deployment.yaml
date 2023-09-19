@@ -93,7 +93,7 @@ spec:
       serviceAccountName: plex-server
       containers:
         - name: plex-server
-          image: linuxserver/plex:1.32.0
+          image: linuxserver/plex:1.32.5
           imagePullPolicy: Always
           volumeMounts:
             - name: plx-library
@@ -104,8 +104,6 @@ spec:
               mountPath: "/data/media_v2"
             - name: plx-media-v3
               mountPath: "/data/media_v3"
-            - name: banners-cert
-              mountPath: "/certs"
           env:
             - name: VERSION
               value: "docker"
@@ -122,7 +120,4 @@ spec:
         - name: plx-media-v3
           persistentVolumeClaim:
             claimName: plx-media-v3
-        - name: banners-cert
-          configMap:
-            name: banners-cert
         

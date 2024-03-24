@@ -23,14 +23,22 @@ data:
       
       use_backend plex if { req.hdr(host) -i plex.dylanmyard.dev }
       
-      use_backend qbittorrent if { req.hdr(host) -i qb.dylanmyard.dev }
+      use_backend sab if { req.hdr(host) -i sab.dylanmyard.dev }
+      
+      use_backend qb if { req.hdr(host) -i qb.dylanmyard.dev }
       
       use_backend sonarr if { req.hdr(host) -i sonarr.dylanmyard.dev }
       
       use_backend radarr if { req.hdr(host) -i radarr.dylanmyard.dev }
       
-      # Choose the default pool of backend servers
-      default_backend wiki
+      use_backend pm if { req.hdr(host) -i pm.dylanmyard.dev }
+      
+      # deny by default
+      default_backend no-match
+
+    backend no-match
+      mode http
+      http-request deny deny_status 400
 
     backend plex
       mode http
@@ -40,12 +48,21 @@ data:
       option httpchk
       http-check expect status 401
       
-      server bansion 192.168.1.210:32400 check
+      server bethany 192.168.1.36:32400 check
 
-    backend qbittorrent
+    backend sab
         mode http
         
-        server bansion 192.168.1.210:8080 check
+        server iso 192.168.1.225:8080 check
+        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
+        http-response set-header Access-Control-Allow-Credentials true
+        http-response set-header Access-Control-Allow-Methods GET,POST
+        http-response replace-header Set-Cookie SID=([^;]*);(.*) SID=\1;SameSite=None;Secure;\2
+
+    backend qb
+        mode http
+        
+        server iso 192.168.1.225:8090 check
         http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
         http-response set-header Access-Control-Allow-Credentials true
         http-response set-header Access-Control-Allow-Methods GET,POST
@@ -54,7 +71,7 @@ data:
     backend sonarr
         mode http
         
-        server pi sonarr.sonarr:8989 check
+        server iso 192.168.1.225:8989 check
         http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
         http-response set-header Access-Control-Allow-Methods GET,POST
         http-response set-header Access-Control-Allow-Credentials true
@@ -62,12 +79,15 @@ data:
     backend radarr
         mode http
         
-        server pi radarr.radarr:7878 check
+        server iso 192.168.1.225:7878 check
         http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
         http-response set-header Access-Control-Allow-Methods GET,POST
         http-response set-header Access-Control-Allow-Credentials true
 
-    backend wiki
+    backend pm
         mode http
         
-        server bansion 192.168.1.210:42400 check
+        server iso 192.168.1.215:8006 check
+        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
+        http-response set-header Access-Control-Allow-Methods GET,POST
+        http-response set-header Access-Control-Allow-Credentials true

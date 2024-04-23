@@ -47,7 +47,12 @@ spec:
   type: LoadBalancer
   ports:
     - port: 8443  
+      name: https
       protocol: TCP
       targetPort: 8443
+    - port: 61773
+      name: proxmox-ssh  
+      protocol: TCP
+      targetPort: 61773
   selector:
     app: ha-proxy

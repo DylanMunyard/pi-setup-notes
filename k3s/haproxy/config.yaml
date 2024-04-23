@@ -36,18 +36,22 @@ data:
       # deny by default
       default_backend no-match
 
+    frontend proxmox_ssh
+      bind *:61773
+      mode tcp
+      default_backend pm-ssh
+
+      tcp-request inspect-delay 5s
+      acl valid_payload req.payload(0,7) -m str "SSH-2.0"
+      tcp-request content reject if !valid_payload
+      tcp-request content accept if { req_ssl_hello_type 1 }
+
     backend no-match
       mode http
       http-request deny deny_status 400
 
     backend plex
-      mode http
-      balance roundrobin
-      
-      # Enable HTTP health checks
-      option httpchk
-      http-check expect status 401
-      
+      mode http      
       server bethany 192.168.1.36:32400 check
 
     backend sab
@@ -86,8 +90,8 @@ data:
 
     backend pm
         mode http
-        
         server iso 192.168.1.215:8006 check
-        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
-        http-response set-header Access-Control-Allow-Methods GET,POST
-        http-response set-header Access-Control-Allow-Credentials true
+
+    backend pm-ssh
+      mode tcp
+      server ssh 192.168.1.215:22

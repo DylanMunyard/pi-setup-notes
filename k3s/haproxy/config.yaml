@@ -90,7 +90,7 @@ data:
 
     backend pm
         mode http
-        server iso 192.168.1.215:8006 check
+        server iso 192.168.1.215:8006 ssl verify none
 
     backend pm-ssh
       mode tcp

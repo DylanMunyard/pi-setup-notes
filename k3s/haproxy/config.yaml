@@ -17,21 +17,21 @@ data:
       mode http
       
       # Receive traffic via HTTPs only
-      bind *:8443 ssl crt /usr/local/etc/haproxy/certs/dylanmyard.dev
+      bind *:8443 ssl crt /usr/local/etc/haproxy/certs/dman.dev
 
       http-request set-var(txn.origin) hdr(Origin)
       
-      use_backend plex if { req.hdr(host) -i plex.dylanmyard.dev }
+      use_backend plex if { req.hdr(host) -i plex.dman.dev }
       
-      use_backend sab if { req.hdr(host) -i sab.dylanmyard.dev }
+      use_backend sab if { req.hdr(host) -i sab.dman.dev }
       
-      use_backend qb if { req.hdr(host) -i qb.dylanmyard.dev }
+      use_backend qb if { req.hdr(host) -i qb.dman.dev }
       
-      use_backend sonarr if { req.hdr(host) -i sonarr.dylanmyard.dev }
+      use_backend sonarr if { req.hdr(host) -i sonarr.dman.dev }
       
-      use_backend radarr if { req.hdr(host) -i radarr.dylanmyard.dev }
+      use_backend radarr if { req.hdr(host) -i radarr.dman.dev }
       
-      use_backend pm if { req.hdr(host) -i pm.dylanmyard.dev }
+      use_backend pm if { req.hdr(host) -i pm.dman.dev }
       
       # deny by default
       default_backend no-match

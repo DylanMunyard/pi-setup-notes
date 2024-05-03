@@ -1,5 +1,5 @@
 # Serving SSL certificate  
-The SSL certificate for dylanmyard.dev is mapped from a ConfigMap into `/certs`. 
+The SSL certificate for dman.dev is mapped from a ConfigMap into `/certs`. 
 
 From the Plex UI > Settings > Network set the path of Custom certificate location to `/certs/elbanyo.pks`
 

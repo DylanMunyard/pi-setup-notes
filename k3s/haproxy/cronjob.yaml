@@ -35,7 +35,7 @@ metadata:
   name: ha-proxy-certs
   namespace: ha-proxy
 data:
-  dman.dev: ""
+  munyard.dev: ""
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -65,7 +65,7 @@ data:
     CACERT=${SERVICEACCOUNT}/ca.crt
 
     # Set domain name
-    DOMAIN=dman.dev
+    DOMAIN=munyard.dev
 
     # Set name of ConfigMap containing the certificate bundle
     CONFIGMAP=ha-proxy-certs
@@ -113,7 +113,7 @@ spec:
             - name: certbot
               image: certbot/dns-google:arm64v8-latest
               imagePullPolicy: Always
-              args: ["certonly", "--dns-google", "--dns-google-credentials", "/gcp/credentials.json", "-d", "dman.dev,plex.dman.dev,sab.dman.dev,qb.dman.dev,sonarr.dman.dev,radarr.dman.dev,pm.dman.dev,www.dman.dev", "--agree-tos", "--email", "dmunyard@gmail.com", "--non-interactive"]
+              args: ["certonly", "--dns-google", "--dns-google-credentials", "/gcp/credentials.json", "-d", "munyard.dev,plex.munyard.dev,sab.munyard.dev,qb.munyard.dev,sonarr.munyard.dev,radarr.munyard.dev,pm.munyard.dev,www.munyard.dev", "--agree-tos", "--email", "dmunyard@gmail.com", "--non-interactive"]
               resources:
                 requests:
                   memory: "64Mi"

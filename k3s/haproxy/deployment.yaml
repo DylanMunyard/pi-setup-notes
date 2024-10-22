@@ -21,22 +21,34 @@ spec:
         app: ha-proxy
     spec:
       serviceAccountName: ha-proxy
+      initContainers:
+        - name: init-cert
+          image: busybox
+          command: ['sh', '-c', 'cat /certs/tls.crt /certs/tls.key > /certs-output/munyard-dev.pem']
+          volumeMounts:
+          - name: tls-secret
+            mountPath: /certs
+          - name: certs-dir
+            mountPath: /certs-output
       containers:
         - name: ha-proxy
           image: arm64v8/haproxy
           imagePullPolicy: Always
           volumeMounts:
-            - name: ha-proxy-certs
-              mountPath: "/usr/local/etc/haproxy/certs"
+            - name: certs-dir
+              mountPath: /usr/local/etc/haproxy/certs
+              readOnly: true
             - name: ha-proxy-cfg
               mountPath: "/usr/local/etc/haproxy"
       volumes:
-        - name: ha-proxy-certs
-          configMap:
-            name: ha-proxy-certs
+        - name: tls-secret
+          secret:
+            secretName: munyard-dev-tls
         - name: ha-proxy-cfg
           configMap:
             name: ha-proxy-cfg
+        - name: certs-dir
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: Service

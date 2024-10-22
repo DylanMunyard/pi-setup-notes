@@ -1,10 +1,48 @@
 # HAProxy
 Reverse proxy operating on the edge (munyard.dev), proxies to the stuff running inside network.
 
-## 1. Deploy the namespace
-`kubectl apply -f namespace.yaml`
+## Generate a self signed certificate
+Set SSL/TLS mode to 'Full' (not strict!). Allows CloudFlare to accept self signed certificate.
 
-## 2. Deploy certbot SSL renewal
+Generate the SSL cert:
+
+```sh
+kubectl create namespace cert-manager
+kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.2/cert-manager.yaml
+
+
+cat ss-issuer.yaml << EOF 
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned-issuer
+spec:
+  selfSigned: {}
+EOF
+
+kubectl apply -f ss-issuer.yaml
+
+cat > ss-certificate.yaml << EOF 
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: munyard-dev-tls
+  namespace: ha-proxy
+spec:
+  secretName: munyard-dev-tls
+  dnsNames:
+  - "munyard.dev"
+  issuerRef:
+    name: selfsigned-issuer
+    kind: ClusterIssuer
+EOF
+
+kubectl apply -f ss-certificate.yaml
+```
+
+## (Obsolete) Generate signed certificate
+(Back when we hosted on GCP)
+ewal
 The SSL cert for munyard.dev is auto renewed by the [cronjob.yaml](cronjob.yaml). Followed this guide: https://russt.me/2018/04/wildcard-lets-encrypt-certificates-with-certbot/
 
 - Create a secret from the GCP credentials `kubectl create secret generic gcp-credentials --from-file credentials.json=./elbanyo-c215a55008fe.json --namespace ha-proxy`

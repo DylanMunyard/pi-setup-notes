@@ -7,6 +7,7 @@ data:
   haproxy.cfg: | 
     global
       tune.ssl.default-dh-param 2048
+      log stdout format raw local0 debug
       
     defaults
       option forwardfor
@@ -14,10 +15,15 @@ data:
 
     frontend k3s  
       # Set the proxy mode to http (layer 7) or tcp (layer 4)
+      log global
       mode http
+      option  httplog
+      option  dontlognull
+
+      log-format "%ci:%cp [%t] %ft %b/%s %Tq/%Tw/%Tc/%Tr/%Tt %ST %B %CC %CS %tsc %ac/%fc/%bc/%sc/%rc %sq/%bq %hr %hs %{+Q}r %sslv %[capture.req.hdr(0)]"
       
       # Receive traffic via HTTPs only
-      bind *:8443 ssl crt /usr/local/etc/haproxy/certs/munyard.dev
+      bind *:8443 ssl crt /usr/local/etc/haproxy/certs/munyard-dev.pem
 
       http-request set-var(txn.origin) hdr(Origin)
       
@@ -35,16 +41,6 @@ data:
       
       # deny by default
       default_backend no-match
-
-    frontend proxmox_ssh
-      bind *:61773
-      mode tcp
-      default_backend pm-ssh
-
-      tcp-request inspect-delay 5s
-      acl valid_payload req.payload(0,7) -m str "SSH-2.0"
-      tcp-request content reject if !valid_payload
-      tcp-request content accept if { req_ssl_hello_type 1 }
 
     backend no-match
       mode http
@@ -91,7 +87,3 @@ data:
     backend pm
         mode http
         server iso 192.168.1.215:8006 ssl verify none
-
-    backend pm-ssh
-      mode tcp
-      server ssh 192.168.1.215:22

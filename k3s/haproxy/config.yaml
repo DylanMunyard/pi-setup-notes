@@ -52,8 +52,7 @@ data:
       mode http      
       server bethany 192.168.1.36:32400 check
 
-    backend grafana
-      mode http      
+    backend grafana     
       server bethany 192.168.1.230:3000 check
 
     backend sab

@@ -39,6 +39,8 @@ data:
       
       use_backend pm if { req.hdr(host) -i pm.munyard.dev }
       
+      use_backend grafana if { req.hdr(host) -i stats.munyard.dev }
+      
       # deny by default
       default_backend no-match
 
@@ -49,6 +51,10 @@ data:
     backend plex
       mode http      
       server bethany 192.168.1.36:32400 check
+
+    backend grafana
+      mode http      
+      server bethany 192.168.1.230:3000 check
 
     backend sab
         mode http

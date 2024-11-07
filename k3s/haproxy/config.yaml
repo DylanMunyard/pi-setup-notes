@@ -58,7 +58,7 @@ data:
 
     backend tautulli
       mode http      
-      server bethany http://192.168.1.36:8181/ check
+      server bethany 192.168.1.36:8181 check
 
     backend grafana
       mode http     

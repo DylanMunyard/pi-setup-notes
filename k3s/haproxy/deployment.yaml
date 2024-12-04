@@ -14,6 +14,7 @@ spec:
   selector:
     matchLabels:
       app: ha-proxy
+      version: v1
   replicas: 1
   template:
     metadata:

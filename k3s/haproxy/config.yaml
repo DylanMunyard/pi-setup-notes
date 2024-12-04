@@ -31,7 +31,7 @@ data:
       
       use_backend sab if { req.hdr(host) -i sab.munyard.dev }
       
-      use_backend qb if { req.hdr(host) -i qb.munyard.dev }
+      use_backend bt if { req.hdr(host) -i bt.munyard.dev }
       
       use_backend sonarr if { req.hdr(host) -i sonarr.munyard.dev }
       
@@ -77,10 +77,10 @@ data:
         http-response set-header Access-Control-Allow-Methods GET,POST
         http-response replace-header Set-Cookie SID=([^;]*);(.*) SID=\1;SameSite=None;Secure;\2
 
-    backend qb
+    backend bt
         mode http
         
-        server iso 192.168.1.225:8090 check
+        server iso 192.168.1.225:9091 check
         http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
         http-response set-header Access-Control-Allow-Credentials true
         http-response set-header Access-Control-Allow-Methods GET,POST

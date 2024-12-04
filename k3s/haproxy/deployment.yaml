@@ -14,12 +14,12 @@ spec:
   selector:
     matchLabels:
       app: ha-proxy
-      version: v1
   replicas: 1
   template:
     metadata:
       labels:
         app: ha-proxy
+        version: v1
     spec:
       serviceAccountName: ha-proxy
       initContainers:

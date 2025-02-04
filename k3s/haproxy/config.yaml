@@ -69,39 +69,21 @@ data:
       server bethany 192.168.1.36:5055 check
 
     backend sab
-        mode http
-        
-        server iso 192.168.1.225:8080 check
-        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
-        http-response set-header Access-Control-Allow-Credentials true
-        http-response set-header Access-Control-Allow-Methods GET,POST
-        http-response replace-header Set-Cookie SID=([^;]*);(.*) SID=\1;SameSite=None;Secure;\2
-
+      mode http
+      server iso 192.168.1.225:8080 check
+      
     backend bt
-        mode http
-        
-        server iso 192.168.1.225:9091 check
-        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
-        http-response set-header Access-Control-Allow-Credentials true
-        http-response set-header Access-Control-Allow-Methods GET,POST
-        http-response replace-header Set-Cookie SID=([^;]*);(.*) SID=\1;SameSite=None;Secure;\2
+      mode http  
+      server iso 192.168.1.225:9091 check
 
     backend sonarr
-        mode http
-        
-        server iso 192.168.1.225:8989 check
-        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
-        http-response set-header Access-Control-Allow-Methods GET,POST
-        http-response set-header Access-Control-Allow-Credentials true
+      mode http        
+      server iso 192.168.1.225:8989 check
 
     backend radarr
-        mode http
-        
-        server iso 192.168.1.225:7878 check
-        http-response set-header Access-Control-Allow-Origin %[var(txn.origin)]
-        http-response set-header Access-Control-Allow-Methods GET,POST
-        http-response set-header Access-Control-Allow-Credentials true
+      mode http        
+      server iso 192.168.1.225:7878 check
 
     backend pm
-        mode http
-        server iso 192.168.1.215:8006 ssl verify none
+      mode http
+      server iso 192.168.1.215:8006 ssl verify none

@@ -8,7 +8,7 @@ Generate the SSL cert:
 
 ```sh
 kubectl create namespace cert-manager
-kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.2/cert-manager.yaml
+kubectl apply --validate=false -f https://github.com/cert-manager/cert-manager/releases/download/v1.16.3/cert-manager.yaml
 
 
 cat ss-issuer.yaml << EOF 
